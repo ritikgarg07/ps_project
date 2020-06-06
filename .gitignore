@@ -1,6 +1,11 @@
+# Editor files
 .vscode/
+
+# Docker container files
 .devcontainer/
 
+# Don't upload dataset
 data/*
+# But keep data folder (for download.sh)
 !data/.gitkeep
 
