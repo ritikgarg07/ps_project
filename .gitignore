@@ -1,3 +1,4 @@
 .vscode/
 .devcontainer/
 data/
+test_folder/*!.gitkeep
