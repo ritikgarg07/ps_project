@@ -5,7 +5,7 @@
 .devcontainer/
 
 # Don't upload dataset
-data/*
+data/raw/*
 # But keep data folder (for download.sh)
 
 !data/raw/.gitkeep
