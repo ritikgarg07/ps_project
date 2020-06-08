@@ -42,5 +42,5 @@ for f in */; do
 done
 touch .gitkeep
 # uncomment if you want to delete zip after extraction for space purposes
-cd .. 
-rm data.zip
+# cd .. 
+# rm data.zip
