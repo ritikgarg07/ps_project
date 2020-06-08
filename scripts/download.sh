@@ -4,11 +4,11 @@ while getopts ":du" opt; do
     case $opt in
     d)
         echo "-d was triggered! Downloading dataset"
-        wget -O ./data/data.zip https://www.cs.columbia.edu/CAVE/databases/multispectral/zip/complete_ms_data.zip      
+        wget -O ./data.zip https://www.cs.columbia.edu/CAVE/databases/multispectral/zip/complete_ms_data.zip      
         ;;
     u) 
         echo "-u was triggered! Unzipping dataset"
-        unzip data.zip -d ./data/
+        unzip data.zip -d ./data/raw/
         ;;
     \?)
         echo "Invalid option! No flags required if data already placed correctly"
@@ -17,7 +17,7 @@ while getopts ":du" opt; do
 done
 
 
-cd ./data
+cd ./data/raw
 
 i=0
 for f in */; do
@@ -40,6 +40,7 @@ for f in */; do
     echo $i
     i=$((i+1))
 done
+
 touch .gitkeep
 # uncomment if you want to delete zip after extraction for space purposes
 # cd .. 
