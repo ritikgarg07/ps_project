@@ -31,7 +31,6 @@ for k in range(n):
     image = image.crop((0,0,w,h))
     pixels = np.asarray(image)
     pixels = np.reshape(pixels, (w*h,))
-    pixels = pixels / np.amax(pixels)
     data_hyp[k] = pixels
 
 # Normalising spectrum by total 'energy' ie- sum of spectral response across all wavelengths for each pixel
