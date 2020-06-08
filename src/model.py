@@ -28,7 +28,7 @@ def unet(input_size = (patch_size, patch_size, 3)):
     # output layer, filters = number of bands
     hyper = layers.Conv2DTranspose(filters=31, kernel_size=3, strides=1, activation='relu', padding='valid')(merge3)
     
-
+    # TODO: Change loss and metric to mean relative absolute error as described in VIDAR paper
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
     model.compile(optimizer = optimizers.Adam(learning_rate = 0.0001), loss = 'mse', metrics = 'mse')
 

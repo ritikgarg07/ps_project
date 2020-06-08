@@ -10,5 +10,5 @@
   
 NOTE: for download.sh 2 flags are available:   
     if -d is provided it will download dataset  
-    if -u is provided it will unzip dataset  
-    You can manually unzip dataset and place it in the data folder and skip these flags  
+    if -u is provided it will unzip dataset
+    You can manually unzip dataset and place it in data/raw folder and skip these flags  
