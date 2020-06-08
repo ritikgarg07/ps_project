@@ -34,6 +34,9 @@ for k in range(n):
     pixels = pixels / np.amax(pixels)
     data_hyp[k] = pixels
 
+# Normalising spectrum by total 'energy' ie- sum of spectral response across all wavelengths for each pixel
+data_hyp = data_hyp / (np.sum(data_hyp, axis = 0))
+
 # Calculate normalising factor
 N = np.dot(np.transpose(cie64['y'].to_numpy()), d65['ill'].to_numpy())
 
