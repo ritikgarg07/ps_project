@@ -7,6 +7,7 @@
 # Don't upload dataset
 data/*
 # But keep data folder (for download.sh)
+
 !data/raw/.gitkeep
 !data/ciexyz.csv
 !data/d65.csv
