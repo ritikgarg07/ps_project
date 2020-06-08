@@ -4,6 +4,8 @@ import pandas as pd
 import colour
 
 # Load illimunation and cie64 spectrum
+# ! CHANGE PATHS ACCORDING TO YOUR DIRECTORY STRUCTURE, RELATIVE PATHS GIVE ERROR 
+# TODO: Fix relative paths
 cie64 = pd.read_csv('/workspaces/ps_project/data/ciexyz.csv', header = None, names =['wv', 'x', 'y', 'z'] )
 d65 = pd.read_csv('/workspaces/ps_project/data/d65.csv', header = None, names = ['wv', 'ill'])
 
@@ -27,6 +29,8 @@ data_rgb = np.empty((3,w*h))
 # Open all 'n' images and store the patch as a single (n, w*h) array
 # wavelengths = [400 + (10 * j) for j in range(n)]
 for k in range(n):
+    # ! CHANGE PATHS ACCORDING TO YOUR DIRECTORY STRUCTURE, RELATIVE PATHS GIVE ERROR 
+    # TODO: Fix relative paths
     image = Image.open(f"/workspaces/ps_project/data/balloons_ms/balloons_ms/balloons_ms_{k + 1:02}.png")
     image = image.crop((0,0,w,h))
     pixels = np.asarray(image)
