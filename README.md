@@ -1,7 +1,7 @@
 ## ps_project
 # PS Project for summer 2020 at IIRS
 
-### Setup instructions (after setting up environment)  
+### Setup instructions 
 
 `git clone https://github.com/ritikgarg07/ps_project.git`  
 `cd ps_project`  
