@@ -13,7 +13,7 @@ RUN groupadd --gid $USER_GID $USERNAME && \
      
 # TODO: ADD UNZIP COMMAND IN DEVEL DOCKERFILE
 
-RUN python3 -m pip install colorpy && python3 -m pip install pillow
+RUN python3 -m pip install colorpy && python3 -m pip install pillow && python3 -m pip install image-slicer
 
 USER $USERNAME
 

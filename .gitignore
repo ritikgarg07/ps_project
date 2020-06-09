@@ -6,9 +6,16 @@
 
 # Don't upload dataset
 data/raw/*
-# But keep data folder (for download.sh)
+data/train/*
+data/validation/*
+data/test/*
+
+# But keep these folder to maintain directory structure
 
 !data/raw/.gitkeep
 !data/ciexyz.csv
 !data/d65.csv
+!data/train/.gitkeep
+!data/validation/.gitkeep
+!data/test/.gitkeep
 
