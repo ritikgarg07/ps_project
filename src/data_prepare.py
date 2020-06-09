@@ -34,7 +34,7 @@ def imgcrop(input_path, input_image, patch_size, destination):
                     wavelength = filename[-2:]
                     f2 = filename[:-3]
                     print(destination + f2 + "_" + str(i) + "_" + str(j) + '_' + str(wavelength) + '.' + file_extension)
-                    a.save(destination + filename + "_" + str(i) + "_" + str(j) + '_' + str(wavelength) + '.' + file_extension)
+                    a.save(destination + f2 + "_" + str(i) + "_" + str(j) + '_' + str(wavelength) + '.' + file_extension)
                 else:
                     pass
             except:
