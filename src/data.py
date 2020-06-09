@@ -1,9 +1,13 @@
 import numpy as np 
 import tensorflow as tf
 import os
+AUTOTUNE = tf.data.experimental.AUTOTUNE
+
+# TODO: Implement dataset as a class in line with tf practises (if any)
 
 # TODO: PATH WOULD BE A VARIABLE PASSED ON FROM MAIN.PY
 path = '/workspaces/ps_project/data/test/'
+
 
 # Takes the file_path to a bmp(RGB) input and outputs the image name
 def get_id(file_path):
@@ -64,8 +68,9 @@ def process_ds(file_path):
 list_ds = tf.data.Dataset.list_files(str(path + '*.bmp'))
 
 # List of tuples (input, output) in given folder defined by path variable
-labelled_ds = list_ds.map(process_ds)
+labelled_ds = list_ds.map(process_ds, num_parallel_calls=AUTOTUNE)
 
+# TODO: IMPLEMENT LOAD/ PREPARE TRAINING/ GENERATOR FUNCTION
 
 for image, label in labelled_ds.take(1):
     print(image.shape)
