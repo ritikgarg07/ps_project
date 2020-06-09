@@ -16,14 +16,15 @@ def unet(input_size = (patch_size, patch_size, 3)):
     conv4 = layers.Conv2D(filters=128, kernel_size=3, strides=1, activation='relu', padding='valid')(conv3)
     
     # Decoder layers
+    # TODO: CHECK CONCATENATE AXIS
     upconv1 = layers.Conv2DTranspose(filters=128, kernel_size=3, strides=1, activation='relu', padding='valid')(conv4)
-    merge1 = layers.concatenate([upconv1, conv3], axis = 3)
+    merge1 = layers.concatenate([upconv1, conv3], axis = 2)
     
     upconv2 = layers.Conv2DTranspose(filters=64, kernel_size=3, strides=1, activation='relu', padding='valid')(merge1)
-    merge2 = layers.concatenate((upconv2, conv2), axis=3)
+    merge2 = layers.concatenate((upconv2, conv2), axis = 2)
     
     upconv3 = layers.Conv2DTranspose(filters=32, kernel_size=3, strides=1, activation='relu', padding='valid')(merge2)
-    merge3 = layers.concatenate((upconv3, conv1), axis=3)
+    merge3 = layers.concatenate((upconv3, conv1), axis = 2)
     
     # output layer, filters = number of bands
     hyper = layers.Conv2DTranspose(filters=31, kernel_size=3, strides=1, activation='relu', padding='valid')(merge3)
