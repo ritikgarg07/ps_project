@@ -20,10 +20,12 @@ def decode_input(file_path):
 def decode_output(file_path):
     # !HARDCODED VALUE: CHANGE
     img = tf.io.read_file(file_path)
-    # TODO: CHANNELS?
     img = tf.image.decode_image(img)
-    # TODO: SCALE OUTPUT IMAGES BY COMMON FACTOR
+    # TODO: CHANGE DTYPE
+    img = tf.image.convert_image_dtype(img, dtype=tf.uint8)
     return img 
+    # TODO: CHANNELS?
+    # TODO: SCALE OUTPUT IMAGES BY COMMON FACTOR
 
 def process_ds(file_path):
     
@@ -35,18 +37,15 @@ def process_ds(file_path):
     id_string += '_'
     
     list_op = tf.io.gfile.glob(path + id_string + '*.png')
-    # print(len(list_op))
-    if(len(list_op) != 31):
-        print(id_string)
-    list_op = tf.convert_to_tensor(list_op)
-    images_op = tf.map_fn(decode_output, list_op, dtype = tf.uint8)       
+    
+    # ! uint8 should match with type in decode_output
+    images_op = [tf.zeros((32,32,1), dtype = tf.uint8) for i in range(31)]
+    for index, file_path in enumerate(list_op):
+        images_op[index] = decode_output(file_path)
     op = tf.stack(images_op, axis = 2)
     op = tf.reshape(op, (32,32,31))
     return (ip, op)
-
-
+    
 list_ds = tf.data.Dataset.list_files(str(path + '*.bmp'))
-for f in list_ds.take(256):
-    a = process_ds(f)
-#     # print(a[1].shape)
-# labelled_ds = list_ds.map(process_ds)
+labelled_ds = list_ds.map(process_ds)
+
