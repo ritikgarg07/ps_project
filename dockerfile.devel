@@ -11,9 +11,8 @@ RUN groupadd --gid $USER_GID $USERNAME && \
    chmod 0440 /etc/sudoers.d/$USERNAME && \
    apt-get install git -y
      
-# TODO: ADD UNZIP COMMAND IN DEVEL DOCKERFILE
 
-RUN python3 -m pip install colorpy && python3 -m pip install pillow && python3 -m pip install image-slicer
+RUN python3 -m pip install pillow
 
 USER $USERNAME
 
