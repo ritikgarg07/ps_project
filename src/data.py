@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 import os
 
+path = '/workspaces/ps_project/data/test/'
+
 def get_id(file_path):
     parts = tf.strings.split(file_path, os.path.sep)
     id = parts[-1]
@@ -9,28 +11,39 @@ def get_id(file_path):
     id = id[0]
     return id
 
-def decode_input(img):
+def decode_input(file_path):
+    img = tf.io.read_file(file_path)
     img = tf.image.decode_image(img, channels=3)
     img = tf.image.convert_image_dtype(img, tf.float32)
     return img
 
-def decode_output(id):
+def decode_output(file_path):
     # !HARDCODED VALUE: CHANGE
-    output = []
-    for i in range(32):
-        img = tf.strings.join(id, '_', str(i), )
-        img = tf.image.decode_image(img)
-        # TODO: SCALE OUTPUT IMAGES BY COMMON FACTOR
-        img = tf.image.convert_image_dtype(img) 
-        output.append(img)
-    output = tf.stack(output, axis = 2)
-    output = tf.reshape(output, (32,32,31))
+    img = tf.io.read_file(file_path)
+    # TODO: CHANNELS?
+    img = tf.image.decode_image(img)
+    # TODO: SCALE OUTPUT IMAGES BY COMMON FACTOR
+    return img 
 
-# def process_path(file_path):
-    # 
+def process_ds(file_path):
+    
+    ip = decode_input(file_path)
 
-list_ds = tf.data.Dataset.list_files(str('/workspaces/ps_project/data/test/*.bmp'))
-for f in list_ds.take(5):
-    # get_labels(f)
-    # pass
-    print(f)
+    id = get_id(file_path)
+    id_string = str(id)
+    id_string = id_string[id_string.find("'")+1:]
+    id_string = id_string[: id_string.find("'")]
+    
+    list_op = tf.io.gfile.glob(path + id_string + '*.png')
+    list_op = tf.convert_to_tensor(list_op)
+    images_op = tf.map_fn(decode_output, list_op, dtype = tf.uint8)       
+    op = tf.stack(images_op, axis = 2)
+    op = tf.reshape(op, (32,32,31))
+    return (ip, op)
+
+
+list_ds = tf.data.Dataset.list_files(str(path + '*.bmp'))
+for f in list_ds.take(1):
+    a = process_ds(f)
+    # print(a[1].shape)
+# labelled_ds = list_ds.map(process_ds)
