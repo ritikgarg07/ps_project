@@ -28,13 +28,16 @@ def decode_output(file_path):
 def process_ds(file_path):
     
     ip = decode_input(file_path)
-
-    id = get_id(file_path)
-    id_string = str(id)
+    id_ = get_id(file_path)
+    id_string = str(id_)
     id_string = id_string[id_string.find("'")+1:]
     id_string = id_string[: id_string.find("'")]
+    id_string += '_'
     
     list_op = tf.io.gfile.glob(path + id_string + '*.png')
+    # print(len(list_op))
+    if(len(list_op) != 31):
+        print(id_string)
     list_op = tf.convert_to_tensor(list_op)
     images_op = tf.map_fn(decode_output, list_op, dtype = tf.uint8)       
     op = tf.stack(images_op, axis = 2)
@@ -43,7 +46,7 @@ def process_ds(file_path):
 
 
 list_ds = tf.data.Dataset.list_files(str(path + '*.bmp'))
-for f in list_ds.take(1):
+for f in list_ds.take(256):
     a = process_ds(f)
-    # print(a[1].shape)
+#     # print(a[1].shape)
 # labelled_ds = list_ds.map(process_ds)
