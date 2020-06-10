@@ -67,53 +67,31 @@ class DataSet(object):
 
         return (ip, op)
 
-    def load_process(self, shuffle_buffer_size = 1000, train = True, test = False, validation = False):
+    def load_process(self, shuffle_buffer_size = 1000, train = False, test = False, validation = False):
         # TODO: Implement test and validation 
 
+        if (not train) & (not test) & (not validation):
+            print('Error! Please select one')
         if train:
-            self.path = self.path+ 'train/'
+            path = self.path + 'train/'
+        
+        if validation:
+            path = self.path + 'validation/'
 
         # List of input images in given folder defined by path variable
-        self.list_ds = tf.data.Dataset.list_files(str(self.path + '*.bmp'))
+        self.list_ds = tf.data.Dataset.list_files(str(path + '*.bmp'))
 
         # List of tuples (input, output) in given folder defined by path variable
         self.labelled_ds = self.list_ds.map(self.__process_ds, num_parallel_calls=AUTOTUNE)
         # labelled_ds = self.labelled_ds.cache()
 
         # self.labelled_ds = self.labelled_ds.shuffle(buffer_size = shuffle_buffer_size)
-        self.labelled_ds = self.labelled_ds.repeat()
+        # self.labelled_ds = self.labelled_ds.repeat()
         self.labelled_ds = self.labelled_ds.batch(self.batch_size)
 
         self.labelled_ds = self.labelled_ds.prefetch(buffer_size=AUTOTUNE)
+        return self.labelled_ds
 
     def get_batch(self):
         return next(iter(self.labelled_ds))
 
-
-dataset = DataSet(batch_size=10)
-dataset.load_process()
-# while True:
-#     ip, op = dataset.get_batch()
-#     print(ip.shape)
-#     print(op.shape)
-# mport time
-# default_timeit_steps = 1000
-
-import time
-default_timeit_steps = 1000
-
-def timeit(ds, steps=default_timeit_steps):
-  start = time.time()
-#   it = iter(ds)
-  for i in range(steps):
-    batch = ds.get_batch()
-    if i%10 == 0:
-      print('.',end='')
-  print()
-  end = time.time()
-
-  duration = end-start
-  print("{} batches: {} s".format(steps, duration))
-  print("{:0.5f} Images/s".format(10*steps/duration))
-
-  timeit(dataset)

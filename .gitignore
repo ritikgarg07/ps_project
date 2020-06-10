@@ -21,3 +21,7 @@ data/test/*
 # PyCache
 src/__pycache__
 
+# Logs
+logs/
+!logs/fit/.gitkeep
+
