@@ -40,6 +40,7 @@ class DataSet(object):
     def __parse_output(self, path_list):
         tensor_list = [self.__decode_output(file_path) for file_path in path_list]
         op = tf.stack(tensor_list, axis = 2)
+        # print(op.shape)
         op = tf.reshape(op, (32, 32, 31))
         return op
         
@@ -64,18 +65,18 @@ class DataSet(object):
 
         # List of lists of paths to output images for each input image
         # Structure: [ [op for ip1], [op for ip2], ...]
-        self.list_op = list(map(lambda f: tf.io.gfile.glob(self.path + folder + f + '*.png'), self.list_id))
+        self.list_op = list(map(lambda f: tf.io.gfile.glob(self.path + folder + f + '_' +'*.png'), self.list_id))
         
         # List of op stacked images for each ip
         # Structure: [ tensor(32, 32, 31) for op1, tensor(32, 32, 31 for op2), ...]
         # Decodes op images from paths to tensors
-        self.tensor_list = [self.__parse_output(f) for f in self.list_op[:2]]
+        self.tensor_list = [self.__parse_output(f) for f in self.list_op]
     
         # Temp dataset of only ip paths
         self.ds1 = tf.data.Dataset.from_tensor_slices(self.list_ip)
-        self.ds1 = self.ds1.cache()
         # Decoding ip images from paths to tensors
-        self.ds1 = self.ds1.map(self.__decode_input)
+        self.ds1 = self.ds1.map(self.__decode_input, num_parallel_calls=AUTOTUNE)
+        # self.ds1 = self.ds1.cache('/workspaces/ps_project/cache/')
 
         # Temp dataset of only op tensors (has been parsed from images to tensors at tensor_list)
         self.ds2 = tf.data.Dataset.from_tensor_slices(self.tensor_list)
@@ -86,6 +87,7 @@ class DataSet(object):
 
         # labelled_ds = self.labelled_ds.cache()
         # self.labelled_ds = self.labelled_ds.shuffle(buffer_size = shuffle_buffer_size)
+        self.ds = self.ds.cache('/workspaces/ps_project/cache/')
         self.ds = self.ds.batch(self.batch_size)
         self.ds = self.ds.prefetch(buffer_size=AUTOTUNE)
 
