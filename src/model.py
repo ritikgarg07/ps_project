@@ -2,7 +2,7 @@
 import tensorflow as tf 
 from tensorflow.keras import layers, optimizers
 
-batch_size = 10
+# batch_size = 10
 patch_size = 32
 
 def unet(input_size = (patch_size, patch_size, 3)):
@@ -18,20 +18,26 @@ def unet(input_size = (patch_size, patch_size, 3)):
     # Decoder layers
     # TODO: CHECK CONCATENATE AXIS
     upconv1 = layers.Conv2DTranspose(filters=128, kernel_size=3, strides=1, activation='relu', padding='valid')(conv4)
-    merge1 = layers.concatenate([upconv1, conv3], axis = 2)
+    merge1 = layers.concatenate([upconv1, conv3], axis = -1)
     
     upconv2 = layers.Conv2DTranspose(filters=64, kernel_size=3, strides=1, activation='relu', padding='valid')(merge1)
-    merge2 = layers.concatenate((upconv2, conv2), axis = 2)
+    merge2 = layers.concatenate((upconv2, conv2), axis = -1)
     
     upconv3 = layers.Conv2DTranspose(filters=32, kernel_size=3, strides=1, activation='relu', padding='valid')(merge2)
-    merge3 = layers.concatenate((upconv3, conv1), axis = 2)
+    merge3 = layers.concatenate((upconv3, conv1), axis = -1)
     
-    # output layer, filters = number of bands
-    hyper = layers.Conv2DTranspose(filters=31, kernel_size=3, strides=1, activation='relu', padding='valid')(merge3)
+    # reconstruction of rgb
+    upconv4 = layers.Conv2DTranspose(filters=3, kernel_size=3, strides=1, activation='relu', padding='valid')(merge3)
     
+    # final hyperspectral layer
+    # 1x1 convolution for now
+    hyper = layers.Conv2D(filters=31, kernel_size=1, strides=1)(upconv4)
+
+
     # TODO: Change loss and metric to mean relative absolute error as described in VIDAR paper
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
     model.compile(optimizer = optimizers.Adam(learning_rate = 0.0001), loss = 'mse', metrics = 'mse')
 
     # print(model.summary())
     return model
+

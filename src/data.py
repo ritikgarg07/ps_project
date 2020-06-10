@@ -61,32 +61,16 @@ def process_ds(file_path):
     op = tf.reshape(op, (32,32,31))
     
     return (ip, op)
-    
-# List of input images in given folder defined by path variable
-list_ds = tf.data.Dataset.list_files(str(path + '*.bmp'))
 
-# List of tuples (input, output) in given folder defined by path variable
-labelled_ds = list_ds.map(process_ds, num_parallel_calls=AUTOTUNE)
 
-# TODO: IMPLEMENT LOAD/ PREPARE TRAINING/ GENERATOR FUNCTION
-# List of input images in given folder defined by path variable
-list_ds = tf.data.Dataset.list_files(str(path + '*.bmp'))
-
-# List of tuples (input, output) in given folder defined by path variable
-labelled_ds = list_ds.map(process_ds, num_parallel_calls=AUTOTUNE)
-
+# generator 
 def load_process(labelled_ds, shuffle_buffer_size = 1000, train = True, test = False, validation = False):
     # TODO: Implement test and validation 
-    
     # labelled_ds = labelled_ds.shuffle(buffer_size = shuffle_buffer_size)
-    labelled_ds = labelled_ds.repeat()
-    labelled_ds = labelled_ds.batch(10)
-
+    # labelled_ds = labelled_ds.repeat()
+    labelled_ds = labelled_ds.batch(8)
     labelled_ds = labelled_ds.prefetch(buffer_size=AUTOTUNE)
     return labelled_ds
 
 def get_batch(labelled_ds):
     return next(iter(labelled_ds))
-
-labelled_ds = load_process(labelled_ds)
-# image, label = get_batch(labelled_ds)

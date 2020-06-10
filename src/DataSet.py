@@ -3,7 +3,6 @@ import tensorflow as tf
 import os
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-
 class DataSet(object):
     def __init__(self, batch_size, path = '/workspaces/ps_project/data/'):
         self.batch_size = batch_size

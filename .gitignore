@@ -18,3 +18,6 @@ data/test/*
 !data/validation/.gitkeep
 !data/test/.gitkeep
 
+# PyCache
+src/__pycache__
+
