@@ -10,8 +10,7 @@ data/train/*
 data/validation/*
 data/test/*
 
-# But keep these folder to maintain directory structure
-
+# But keep these folders to maintain directory structure
 !data/raw/.gitkeep
 !data/ciexyz.csv
 !data/d65.csv
