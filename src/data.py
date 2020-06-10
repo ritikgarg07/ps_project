@@ -1,13 +1,11 @@
 import numpy as np 
 import tensorflow as tf
 import os
+# import time
 AUTOTUNE = tf.data.experimental.AUTOTUNE
-
-# TODO: Implement dataset as a class in line with tf practises (if any)
 
 # TODO: PATH WOULD BE A VARIABLE PASSED ON FROM MAIN.PY
 path = '/workspaces/ps_project/data/train/'
-
 
 # Takes the file_path to a bmp(RGB) input and outputs the image name
 def get_id(file_path):
@@ -76,12 +74,11 @@ list_ds = tf.data.Dataset.list_files(str(path + '*.bmp'))
 
 # List of tuples (input, output) in given folder defined by path variable
 labelled_ds = list_ds.map(process_ds, num_parallel_calls=AUTOTUNE)
-# labelled_ds = self.labelled_ds.cache()
+
 def load_process(labelled_ds, shuffle_buffer_size = 1000, train = True, test = False, validation = False):
     # TODO: Implement test and validation 
     
-
-    # self.labelled_ds = self.labelled_ds.shuffle(buffer_size = shuffle_buffer_size)
+    # labelled_ds = labelled_ds.shuffle(buffer_size = shuffle_buffer_size)
     labelled_ds = labelled_ds.repeat()
     labelled_ds = labelled_ds.batch(10)
 
@@ -92,6 +89,4 @@ def get_batch(labelled_ds):
     return next(iter(labelled_ds))
 
 labelled_ds = load_process(labelled_ds)
-image, label = get_batch(labelled_ds)
-print(image.shape)
-print(label.shape)
+# image, label = get_batch(labelled_ds)

@@ -93,7 +93,28 @@ class DataSet(object):
 
 dataset = DataSet(batch_size=10)
 dataset.load_process()
-while True:
-    ip, op = dataset.get_batch()
-    print(ip.shape)
-    print(op.shape)
+# while True:
+#     ip, op = dataset.get_batch()
+#     print(ip.shape)
+#     print(op.shape)
+# mport time
+# default_timeit_steps = 1000
+
+import time
+default_timeit_steps = 1000
+
+def timeit(ds, steps=default_timeit_steps):
+  start = time.time()
+#   it = iter(ds)
+  for i in range(steps):
+    batch = ds.get_batch()
+    if i%10 == 0:
+      print('.',end='')
+  print()
+  end = time.time()
+
+  duration = end-start
+  print("{} batches: {} s".format(steps, duration))
+  print("{:0.5f} Images/s".format(10*steps/duration))
+
+  timeit(dataset)
