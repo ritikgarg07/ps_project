@@ -5,19 +5,13 @@
 .devcontainer/
 
 # Don't upload dataset
-data/raw/*
-data/train/*
-data/validation/*
-data/test/*
+data/*
 
 # But keep these folders to maintain directory structure
 !data/raw/.gitkeep
 !data/ciexyz.csv
 !data/d65.csv
-!data/train/.gitkeep
-!data/validation/.gitkeep
-!data/test/.gitkeep
-
+!data/.gitkeep
 # PyCache
 src/__pycache__
 

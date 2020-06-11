@@ -1,5 +1,4 @@
 from PIL import Image
-import image_slicer
 import random
 import os
 

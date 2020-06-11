@@ -4,12 +4,13 @@ from datetime import datetime
 import DataSet
 import time
 import tensorboard
+import os
 from benchmarks import timeit
-
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 dataset = DataSet.DataSet(batch_size=8)
-train_ds = dataset.load_process(test=True)
+train_ds = dataset.load_process(train=True)
 # train_ds = dataset.load_process(train=True)
 # validation_ds = dataset.load_process(validation=True)
 

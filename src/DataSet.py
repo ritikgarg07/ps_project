@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import tensorboard
 import os
+import time
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
@@ -58,35 +59,44 @@ class DataSet(object):
             folder = 'test/'
 
         # List of paths to input images in given folder defined by path variable
+        start = time.time()
+        print("step1: " + str(time.time() - start))
         self.list_ip = tf.io.gfile.glob(str(self.path + folder + '*.bmp'))
 
         # List of 'ids' of input images ie- 'sampleno_rowno_column_no'
+        print("step2: " + str(time.time() - start))
         self.list_id = list(map(self.__get_id, self.list_ip))
 
         # List of lists of paths to output images for each input image
         # Structure: [ [op for ip1], [op for ip2], ...]
-        self.list_op = list(map(lambda f: tf.io.gfile.glob(self.path + folder + f + '_' +'*.png'), self.list_id))
-        
+        print("step3: " + str(time.time() - start))
+        # self.list_op = list(map(lambda f: tf.io.gfile.glob(self.path + folder + f + '_' +'*.png'), self.list_id))
+        self.list_op = [ [self.path + folder + id + '_' + str(wv).zfill(2) + '.png' for wv in range(1, 32)]  for id in self.list_id]
         # List of op stacked images for each ip
         # Structure: [ tensor(32, 32, 31) for op1, tensor(32, 32, 31 for op2), ...]
         # Decodes op images from paths to tensors
+        print("step4: " + str(time.time() - start))
         self.tensor_list = [self.__parse_output(f) for f in self.list_op]
-    
+
+        print("step5: " + str(time.time() - start))
         # Temp dataset of only ip paths
         self.ds1 = tf.data.Dataset.from_tensor_slices(self.list_ip)
         # Decoding ip images from paths to tensors
+        
+        print("step6: " + str(time.time() - start))
         self.ds1 = self.ds1.map(self.__decode_input, num_parallel_calls=AUTOTUNE)
         # self.ds1 = self.ds1.cache('/workspaces/ps_project/cache/')
 
+        print("step7: " + str(time.time() - start))
         # Temp dataset of only op tensors (has been parsed from images to tensors at tensor_list)
         self.ds2 = tf.data.Dataset.from_tensor_slices(self.tensor_list)
         
         # Final dataset: tuple of ip_tensor, op_tensor
         # ie- (tensor of shape (32, 32, 3), tensor of shape(32, 32, 31))
+        print("step8: " + str(time.time() - start))
         self.ds = tf.data.Dataset.zip((self.ds1, self.ds2))
 
-        # labelled_ds = self.labelled_ds.cache()
-        # self.labelled_ds = self.labelled_ds.shuffle(buffer_size = shuffle_buffer_size)
+        print("step9: " + str(time.time()))
         self.ds = self.ds.cache('/workspaces/ps_project/cache/')
         self.ds = self.ds.batch(self.batch_size)
         self.ds = self.ds.prefetch(buffer_size=AUTOTUNE)
