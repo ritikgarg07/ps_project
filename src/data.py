@@ -61,4 +61,21 @@ class DataSet(object):
         self.ds = self.ds.prefetch(buffer_size=AUTOTUNE)
 
         return self.ds
+
+
+def convert_image(prediction):
+    
+    for wv in range(31):
+        b = np.empty((512, 512))
+        for index, arr in enumerate(prediction[:]):
+            i = index % 16
+            j = index // 16
+            b[i*32: (i+1)*32, j*32: (j+1)*32] = np.transpose(arr[:,:,wv])
+
+        b = np.transpose(b)
+        b = b * 65535
+        b = np.array(b, dtype = np.uint16)
+        a = Image.fromarray(b).convert('I;16')
+        a.save('/workspaces/ps_project/results/' + str(wv) + '.png')
+
     
