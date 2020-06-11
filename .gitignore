@@ -23,3 +23,6 @@ logs/
 cache/
 !cache/.gitkeep
 
+# Old src files
+obsolete/
+
