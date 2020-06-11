@@ -19,7 +19,7 @@ validation_dataset = data.DataSet(batch_size=8, mode = 'validation')
 validation_ds = validation_dataset.load_data()
 
 test_dataset = data.DataSet(batch_size = 8, mode = 'test')
-test_ds = test_dataset.load_data()
+test_ds =test_dataset.load_data()
 
 unet = model.unet()
 logdir = '/workspaces/ps_project/logs/fit/' + datetime.now().strftime("%Y%m%d-%H%M%S")

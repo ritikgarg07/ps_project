@@ -27,3 +27,8 @@ cache/*
 # Old src files
 obsolete/
 
+# Results
+results/*
+!results/.gitkeep
+
+

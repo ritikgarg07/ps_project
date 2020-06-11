@@ -40,8 +40,9 @@ def unet(input_size = (patch_size, patch_size, 3)):
     hyper = layers.Conv2D(filters=31, kernel_size=1, strides=1)(upconv4)
 
 
+    # TODO: Change loss and metric to mean relative absolute error as described in VIDAR paper
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
-    model.compile(optimizer = optimizers.Adam(epsilon= 1e-8, learning_rate=0.001), loss = 'mse', metrics = tf.keras.metrics.MeanAbsoluteError())
+    model.compile(optimizer = optimizers.Adam(epsilon= 1e-8, learning_rate=0.001, ), loss = 'mse', metrics = tf.keras.metrics.MeanAbsoluteError())
 
     # print(model.summary())
     return model
