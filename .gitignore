@@ -12,15 +12,16 @@ data/*
 !data/ciexyz.csv
 !data/d65.csv
 !data/.gitkeep
+
 # PyCache
 src/__pycache__
 
 # Logs
-logs/
+logs/*
 !logs/fit/.gitkeep
 
 # Datasets cache
-cache/
+cache/*
 !cache/.gitkeep
 
 # Old src files
