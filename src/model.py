@@ -5,6 +5,12 @@ from tensorflow.keras import layers, optimizers
 # batch_size = 10
 patch_size = 32
 
+# def mrae(y_target, y_predicted):
+#     m = tf.reduce_sum(tf.divide(tf.abs(y_target - y_predicted), y_target))
+#     # TODO: Change hardcoded value
+#     # pixel_count = 32*32*31
+    # return tf.reduce_mean(m, axis = 0)
+
 def unet(input_size = (patch_size, patch_size, 3)):
 
     rgb = layers.Input(input_size)
@@ -36,7 +42,7 @@ def unet(input_size = (patch_size, patch_size, 3)):
 
     # TODO: Change loss and metric to mean relative absolute error as described in VIDAR paper
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
-    model.compile(optimizer = optimizers.Adam(learning_rate = 0.0001), loss = 'mse', metrics = 'mse')
+    model.compile(optimizer = optimizers.Adam(epsilon= 1e-8, learning_rate=0.001, ), loss = 'mse', metrics = tf.keras.metrics.MeanAbsoluteError())
 
     # print(model.summary())
     return model

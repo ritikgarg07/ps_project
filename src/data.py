@@ -32,29 +32,30 @@ class Generator(object):
 # Class for dataset
 class DataSet(object):
     
-    def __init__(self, batch_size, path = '/workspaces/ps_project/data/'):
+    def __init__(self, batch_size, mode, path = '/workspaces/ps_project/data/'):
         self.batch_size = batch_size
         self.path = path
         self.dict = {'train': None, 'validation': None, 'test': None}
+        self.mode = mode
     
     def get_batch(self):
         return next(iter(self.ds))
 
     # Main function
-    def load_data(self, **args):
-        if not args:
-            print("Please specify 'train' and/or 'validation' and/or 'test'. Returning training set by default")
-            args[0] = 'train'
-        else:
-            pass
+    def load_data(self):
+        # if not args:
+        #     print("Please specify 'train' and/or 'validation' and/or 'test'. Returning training set by default")
+        #     args[0] = 'train'
+        # else:
+        #     pass
         
-        for arg in args:
-            print(arg)
+        # for arg in args:
+        #     print(arg)
             
 
         # !TODO: Appropriate way to pass 32 = patch_size here
         # ? Config file
-        self.ds = tf.data.Dataset.from_generator(Generator(self.path + 'train.h5'), output_types=(tf.float32, tf.float32), output_shapes=((32, 32, 3), (32, 32, 31)), args = [])
+        self.ds = tf.data.Dataset.from_generator(Generator(self.path + self.mode + '.h5'), output_types=(tf.float32, tf.float32), output_shapes=((32, 32, 3), (32, 32, 31)), args = [])
 
         self.ds = self.ds.batch(self.batch_size)
         self.ds = self.ds.prefetch(buffer_size=AUTOTUNE)
