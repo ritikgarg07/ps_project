@@ -28,6 +28,3 @@ history = unet.fit(train_ds, validation_data=validation_ds,batch_size = 8, epoch
 prediction = unet.predict(test_ds)
 data.convert_image(prediction)
 
-
-prediction = unet.evaluate(test_ds)
-
