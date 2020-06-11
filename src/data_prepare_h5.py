@@ -4,6 +4,7 @@ import random
 import numpy as np 
 import os
 import glob
+
 # Class encapsulating the data preparation functionality
 class DataPrepare(object):
 
