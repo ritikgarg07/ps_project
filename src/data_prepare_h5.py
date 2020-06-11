@@ -4,15 +4,21 @@ import random
 import numpy as np 
 import os
 import glob
-
+# Class encapsulating the data preparation functionality
 class DataPrepare(object):
 
+    # @param src_path: path to raw images
+    # @param dest_path: path to store
+    # @param size: patch_size of images  
     def __init__(self, src_path, dest_path, size):
         self.src_path = src_path
         self.dest_path = dest_path        
         self.size = size
 
+    # @param id: id of image to generate dataset for
+    # Stores the ip and op image in h5 file using self 
     def __crop_store(self, id):
+
         ip_file = glob.glob(self.current_path + '*.bmp')[0]
         op_files = sorted(glob.glob(self.current_path + '*.png'))
         
@@ -45,7 +51,8 @@ class DataPrepare(object):
                 name = str(id).zfill(2) + '_' + str(i).zfill(2) + '_' + str(j).zfill(2)
                 a = b[i * self.size:  (i + 1) * self.size, j * self.size: (j + 1) * self.size, :]
                 self.op.create_dataset(name, data = a)
-                
+
+    # Generates training set from images_range 
     def __create_train(self, start, end):
         self.file = h5py.File(self.dest_path + 'train.h5', 'w')
         self.ip = self.file.create_group('ip')
@@ -55,6 +62,7 @@ class DataPrepare(object):
             self.current_path = self.src_path + str(id) + '/'
             self.__crop_store(id)
 
+    # Generate validation set from images_range
     def __create_validation(self, start, end):
         self.file = h5py.File(self.dest_path + 'validation.h5', 'w')
         self.ip = self.file.create_group('ip')
@@ -64,6 +72,8 @@ class DataPrepare(object):
             self.current_path = self.src_path + str(id) + '/'
             self.__crop_store(id)
 
+    # Generate test set from images_range
+    # ! [start: ]; till end of images_range
     def __create_test(self, start):
         self.file = h5py.File(self.dest_path + 'test.h5', 'w')
         self.ip = self.file.create_group('ip')
@@ -73,11 +83,14 @@ class DataPrepare(object):
             self.current_path = self.src_path + str(id) + '/'
             self.__crop_store(id)
 
-    # number of images in each
+    # Splits the image_range into test, validation and test
+    # @param: number of images in each test, validation, test
     def split(self, train, validation, test):  
 
         # 0 - 31 images
         self.image_range = list(range(0,32))
+
+        # Shuffle the images_range
         random.shuffle(self.image_range)
 
         self.__create_train(0, train)
@@ -85,5 +98,6 @@ class DataPrepare(object):
         self.__create_test(train + validation)
 
 
+# TODO: Move to main.py
 prepare = DataPrepare(dest_path = '/workspaces/ps_project/data/', src_path = '/workspaces/ps_project/data/raw/', size = 32)
-prepare.split(29, 2, 1)
+prepare.split(train = 29, validation = 2, test = 1)
