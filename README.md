@@ -1,4 +1,3 @@
-## ps_project
 # PS Project for summer 2020 at IIRS
 # Hyperspectral Reconstruction from RGB Images
 
