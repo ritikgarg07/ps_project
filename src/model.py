@@ -5,6 +5,22 @@ from tensorflow.keras import layers, optimizers
 # batch_size = 10
 patch_size = 32
 
+class MRAE(tf.keras.metrics.Metric):
+
+    def __init__(self, name = 'mrae_metric', **kwargs):
+        super(MRAE, self).__init__(name = name, **kwargs)
+        self.mrae = self.add_weight(name='mrae', initializer = 'zeros')
+    
+    def update_state(self, y_true, y_pred):
+        zero_protected_true = tf.maximum(y_true, 1e-5*tf.ones_like(y_true))
+        self.mrae.assign_add(tf.reduce_mean(tf.divide(tf.abs(y_pred - y_true), zero_protected_true)))
+
+    def result(self):
+        return self.mrae
+
+    def reset_states(self):
+        self.mrae.assign(0.)
+
 def unet(input_size = (patch_size, patch_size, 3), pretrained_weights = None):
 
     rgb = layers.Input(input_size)
@@ -35,7 +51,7 @@ def unet(input_size = (patch_size, patch_size, 3), pretrained_weights = None):
 
     # TODO: Change loss and metric to mean relative absolute error as described in VIDAR paper
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
-    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = tf.keras.metrics.MeanAbsoluteError())
+    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [tf.keras.metrics.RootMeanSquaredError(), MRAE()])
     if(pretrained_weights):
         model.load_weights(pretrained_weights)
 

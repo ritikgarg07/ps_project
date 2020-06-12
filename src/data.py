@@ -45,6 +45,7 @@ class DataSet(object):
         # ? Config file
         self.ds = tf.data.Dataset.from_generator(Generator(self.path + self.mode + '.h5'), output_types=(tf.float32, tf.float32), output_shapes=((32, 32, 3), (32, 32, 31)), args = [])
 
+
         self.ds = self.ds.batch(self.batch_size)
         self.ds = self.ds.prefetch(buffer_size=AUTOTUNE)
 
@@ -63,4 +64,4 @@ def convert_image(prediction):
         b = b * 65535
         b = np.array(b, dtype = np.uint16)
         a = Image.fromarray(b).convert('I;16')
-        a.save('/workspaces/ps_project/results/' + str(wv) + '.png')
+        a.save('/workspaces/ps_project/results/' + str(wv + 1).zfill(2) + '.png')

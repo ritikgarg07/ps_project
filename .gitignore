@@ -18,7 +18,6 @@ src/__pycache__
 
 # Logs
 logs/*
-!logs/fit/.gitkeep
 
 # Datasets cache
 cache/*
