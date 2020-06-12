@@ -31,4 +31,5 @@ obsolete/
 results/*
 !results/.gitkeep
 
-
+# Trained Models
+models/*

@@ -1,10 +1,7 @@
 import numpy as np 
 import tensorflow as tf
-import tensorboard
 import os
-import time
 import h5py
-from benchmark import timeit
 from PIL import Image
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
@@ -36,7 +33,6 @@ class DataSet(object):
     def __init__(self, batch_size, mode, path = '/workspaces/ps_project/data/'):
         self.batch_size = batch_size
         self.path = path
-        self.dict = {'train': None, 'validation': None, 'test': None}
         self.mode = mode
     
     def get_batch(self):
@@ -44,16 +40,7 @@ class DataSet(object):
 
     # Main function
     def load_data(self):
-        # if not args:
-        #     print("Please specify 'train' and/or 'validation' and/or 'test'. Returning training set by default")
-        #     args[0] = 'train'
-        # else:
-        #     pass
         
-        # for arg in args:
-        #     print(arg)
-            
-
         # !TODO: Appropriate way to pass 32 = patch_size here
         # ? Config file
         self.ds = tf.data.Dataset.from_generator(Generator(self.path + self.mode + '.h5'), output_types=(tf.float32, tf.float32), output_shapes=((32, 32, 3), (32, 32, 31)), args = [])
@@ -62,7 +49,6 @@ class DataSet(object):
         self.ds = self.ds.prefetch(buffer_size=AUTOTUNE)
 
         return self.ds
-
 
 def convert_image(prediction):
     

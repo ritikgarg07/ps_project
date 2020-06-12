@@ -5,13 +5,7 @@ from tensorflow.keras import layers, optimizers
 # batch_size = 10
 patch_size = 32
 
-# def mrae(y_target, y_predicted):
-#     m = tf.reduce_sum(tf.divide(tf.abs(y_target - y_predicted), y_target))
-#     # TODO: Change hardcoded value
-#     # pixel_count = 32*32*31
-    # return tf.reduce_mean(m, axis = 0)
-
-def unet(input_size = (patch_size, patch_size, 3)):
+def unet(input_size = (patch_size, patch_size, 3), pretrained_weights = None):
 
     rgb = layers.Input(input_size)
    
@@ -22,27 +16,28 @@ def unet(input_size = (patch_size, patch_size, 3)):
     conv4 = layers.Conv2D(filters=128, kernel_size=3, strides=1, activation='relu', padding='valid')(conv3)
     
     # Decoder layers
-    # TODO: CHECK CONCATENATE AXIS
     upconv1 = layers.Conv2DTranspose(filters=128, kernel_size=3, strides=1, activation='relu', padding='valid')(conv4)
-    merge1 = layers.concatenate([upconv1, conv3], axis = -1)
+    merge1 = layers.concatenate([upconv1, conv3], axis = 3)
     
     upconv2 = layers.Conv2DTranspose(filters=64, kernel_size=3, strides=1, activation='relu', padding='valid')(merge1)
-    merge2 = layers.concatenate((upconv2, conv2), axis = -1)
+    merge2 = layers.concatenate((upconv2, conv2), axis = 3)
     
     upconv3 = layers.Conv2DTranspose(filters=32, kernel_size=3, strides=1, activation='relu', padding='valid')(merge2)
-    merge3 = layers.concatenate((upconv3, conv1), axis = -1)
+    merge3 = layers.concatenate((upconv3, conv1), axis = 3)
     
     # reconstruction of rgb
     upconv4 = layers.Conv2DTranspose(filters=3, kernel_size=3, strides=1, activation='relu', padding='valid')(merge3)
     
     # final hyperspectral layer
     # 1x1 convolution for now
-    hyper = layers.Conv2D(filters=31, kernel_size=1, strides=1)(upconv4)
+    hyper = layers.Conv2D(filters=31, kernel_size=1, strides=1, activation='sigmoid')(upconv4)
 
 
     # TODO: Change loss and metric to mean relative absolute error as described in VIDAR paper
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
     model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = tf.keras.metrics.MeanAbsoluteError())
+    if(pretrained_weights):
+        model.load_weights(pretrained_weights)
 
     # print(model.summary())
     return model
