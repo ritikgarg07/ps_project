@@ -1,5 +1,6 @@
 ## ps_project
 # PS Project for summer 2020 at IIRS
+# Hyperspectral Reconstruction from RGB Images
 
 ### Setting up development environment 
 
@@ -8,7 +9,7 @@
 `sh scripts/setup.sh`   (This will create a docker image with the required packages)      
 `sh scripts/download.sh -d -u`  
   
-### NOTE:   
+#### NOTE:   
     For download.sh 2 flags are available:   
         if -d is provided it will download dataset  
         if -u is provided it will unzip dataset  
