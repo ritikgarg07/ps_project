@@ -32,18 +32,19 @@ class DataPrepare(object):
                 name = str(id).zfill(2) + '_' + str(i).zfill(2) + '_' + str(j).zfill(2)
                 a = ip_image[i * self.size:  (i + 1) * self.size, j * self.size: (j + 1) * self.size]
                 self.ip.create_dataset(name, data = a)
-        
 
+        b = np.zeros(shape = (img_size, img_size, 31), dtype = np.uint16)
         for wv, op_file in enumerate(op_files):
-            b = np.empty(shape = (img_size, img_size, 31), dtype = np.uint16)
             if id == 31:
                 # ! OP Images for id = 31 are in RGBA, aplha channel is 255 throughout
                 # Converting to 16 bit 
-                op_image = np.array((Image.open(op_file).convert('I')))* (65535 /255)
+                op_image = np.array((Image.open(op_file).convert('I')))* (65535 / 255)
                 op_image = op_image.astype(np.uint16)
                 
             else:
+                op_image = Image.open(op_file)
                 op_image = np.array(Image.open(op_file), dtype = np.uint16)
+
             b[:,:,wv] = np.asarray(op_image)
        
         for i in range(0, pieces):
