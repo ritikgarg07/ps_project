@@ -1,0 +1,16 @@
+# Initialisation
+base_dir: '/workspaces/ps_project/'
+
+# Dataset parameters
+patch_size: 32
+train_no: 29
+validation_no: 2
+test_no: 1
+wavelengths: 31
+image_size: 512
+
+# Model parameters
+batch_size: 32
+
+# Benchmark parameters
+steps_benchmark: 1000

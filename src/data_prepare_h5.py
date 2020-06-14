@@ -90,7 +90,7 @@ class DataPrepare(object):
     def split(self, train, validation, test):  
 
         # 0 - 31 images
-        self.image_range = list(range(0,32))
+        self.image_range = list(range(0,train + validation + test))
 
         # Shuffle the images_range
         random.shuffle(self.image_range)
