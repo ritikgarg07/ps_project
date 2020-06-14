@@ -13,6 +13,12 @@
         if -d is provided it will download dataset  
         if -u is provided it will unzip dataset  
     You can manually unzip dataset and place it in ps_project/data/raw/ and skip these flags
+
+### NOTE:
+    Due to Docker and relative paths, the absolute path needs to be specified in three places as of now:
+        src/main.py:            while loading config file
+        src/data_prepare_h5.py: while loading config file
+        config.yaml:            base_dir
     
         
 
