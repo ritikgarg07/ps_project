@@ -30,11 +30,13 @@ class Generator(object):
 # Class for dataset
 class DataSet(object):
     
-    def __init__(self, batch_size, mode, path = '/workspaces/ps_project/data/'):
+    def __init__(self, batch_size, mode, path, patch_size, wavelengths):
         self.batch_size = batch_size
         self.path = path
         self.mode = mode
-    
+        self.patch_size = patch_size
+        self.wavelengths = wavelengths
+
     def get_batch(self):
         return next(iter(self.ds))
 
@@ -43,7 +45,7 @@ class DataSet(object):
         
         # !TODO: Appropriate way to pass 32 = patch_size here
         # ? Config file
-        self.ds = tf.data.Dataset.from_generator(Generator(self.path + self.mode + '.h5'), output_types=(tf.float32, tf.float32), output_shapes=((32, 32, 3), (32, 32, 31)), args = [])
+        self.ds = tf.data.Dataset.from_generator(Generator(self.path + self.mode + '.h5'), output_types=(tf.float32, tf.float32), output_shapes=((self.patch_size, self.patch_size, 3), (self.patch_size, self.patch_size, self.wavelengths)), args = [])
 
 
         self.ds = self.ds.batch(self.batch_size)
@@ -51,6 +53,7 @@ class DataSet(object):
 
         return self.ds
 
+# TODO: CONFIGURE CONFIG FILE
 def convert_image(prediction):
     
     for wv in range(31):

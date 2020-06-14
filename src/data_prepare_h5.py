@@ -4,6 +4,13 @@ import random
 import numpy as np 
 import os
 import glob
+import yaml
+
+# ! Specifiy absolute path here
+with open('/workspaces/ps_project/config.yaml') as file:
+    config = yaml.safe_load(file)
+
+
 
 # Class encapsulating the data preparation functionality
 class DataPrepare(object):
@@ -33,7 +40,7 @@ class DataPrepare(object):
                 a = ip_image[i * self.size:  (i + 1) * self.size, j * self.size: (j + 1) * self.size]
                 self.ip.create_dataset(name, data = a)
 
-        b = np.zeros(shape = (img_size, img_size, 31), dtype = np.uint16)
+        b = np.zeros(shape = (img_size, img_size, config["wavelengths"]), dtype = np.uint16)
         for wv, op_file in enumerate(op_files):
             if id == 31:
                 # ! OP Images for id = 31 are in RGBA, aplha channel is 255 throughout
@@ -101,5 +108,6 @@ class DataPrepare(object):
 
 
 # TODO: Move to main.py
-prepare = DataPrepare(dest_path = '/workspaces/ps_project/data/', src_path = '/workspaces/ps_project/data/raw/', size = 32)
-prepare.split(train = 29, validation = 2, test = 1)
+prepare = DataPrepare(dest_path = config["base_dir"] + 'data/', src_path = config["base_dir"] + 'data/raw/', size = config["patch_size"])
+
+prepare.split(train = config["train_no"], validation = config["validation_no"], test = config["test_no"])

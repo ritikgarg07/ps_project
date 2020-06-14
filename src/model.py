@@ -2,9 +2,6 @@
 import tensorflow as tf 
 from tensorflow.keras import layers, optimizers
 
-# batch_size = 10
-patch_size = 32
-
 class MRAE(tf.keras.metrics.Metric):
 
     def __init__(self, name = 'mrae_metric', **kwargs):
@@ -21,7 +18,7 @@ class MRAE(tf.keras.metrics.Metric):
     def reset_states(self):
         self.mrae.assign(0.)
 
-def unet(input_size = (patch_size, patch_size, 3), pretrained_weights = None):
+def unet(input_size, wavelengths, pretrained_weights = None):
 
     rgb = layers.Input(input_size)
    
@@ -46,10 +43,10 @@ def unet(input_size = (patch_size, patch_size, 3), pretrained_weights = None):
     
     # final hyperspectral layer
     # 1x1 convolution for now
-    hyper = layers.Conv2D(filters=31, kernel_size=1, strides=1, activation='sigmoid')(upconv4)
+    hyper = layers.Conv2D(filters=wavelengths, kernel_size=1, strides=1, activation='sigmoid')(upconv4)
 
 
-    # TODO: Change loss and metric to mean relative absolute error as described in VIDAR paper
+    # TODO: Change metric to mean relative absolute error as described in VIDAR paper
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
     model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [tf.keras.metrics.RootMeanSquaredError(), MRAE()])
     if(pretrained_weights):
