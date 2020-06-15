@@ -1,8 +1,10 @@
-import numpy as np 
-import tensorflow as tf
-import os
 import h5py
+import matplotlib.pyplot as plt
+import numpy as np 
+import os
 from PIL import Image
+import tensorflow as tf
+
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
@@ -43,8 +45,6 @@ class DataSet(object):
     # Main function
     def load_data(self):
         
-        # !TODO: Appropriate way to pass 32 = patch_size here
-        # ? Config file
         self.ds = tf.data.Dataset.from_generator(Generator(self.path + self.mode + '.h5'), output_types=(tf.float32, tf.float32), output_shapes=((self.patch_size, self.patch_size, 3), (self.patch_size, self.patch_size, self.wavelengths)), args = [])
 
 
@@ -68,3 +68,43 @@ def convert_image(prediction):
         b = np.array(b, dtype = np.uint16)
         a = Image.fromarray(b).convert('I;16')
         a.save('/workspaces/ps_project/results/' + str(wv + 1).zfill(2) + '.png')
+
+def plot_spectrum_by_wv(prediction):
+    for wv in range(31):
+        patch = np.random.randint(0, 256)
+        a = tf.reshape(prediction[patch,:,:,wv], (32*32, 1))
+        plt.plot(a * 65535, label = 'prediction')
+        
+        with h5py.File('/workspaces/ps_project/data/test.h5', 'r') as hf:
+            op_group = hf['/op']
+            for index, op in enumerate(op_group):
+                if index == patch:
+                    b = np.reshape(np.array(op_group.get(op))[:, :, wv], (32*32, 1))
+                    plt.plot(b, label = 'truth')
+                    plt.legend()
+                    plt.title(f"Patch: {patch} Wavelength: {wv}")
+                    plt.savefig(f"/workspaces/ps_project/plots/by_wv/test_{wv}_{patch}.png")
+                    plt.clf()
+                else:
+                    pass
+
+def plot_spectrum_by_pixel(prediction):
+    for i in range(20):
+        patch = np.random.randint(0, 256)
+        x = np.random.randint(0, 32)
+        y = np.random.randint(0,32)
+
+        plt.plot(prediction[patch, x, y, :] * 65535, label = 'prediction')
+        with h5py.File('/workspaces/ps_project/data/test.h5', 'r') as hf:
+            op_group = hf['/op']
+            for index, op in enumerate(op_group):
+                if index == patch:
+                    b = np.array(op_group.get(op))[x, y, :]
+                    plt.plot(b, label = 'truth')
+                    plt.xlabel('wavelength')
+                    plt.legend()
+                    plt.title(f"Patch: {patch} X: {x} Y: {y}")
+                    plt.savefig(f"/workspaces/ps_project/plots/by_pixel/test_{i}_{x}_{y}.png")
+                    plt.clf()
+                else:
+                    pass

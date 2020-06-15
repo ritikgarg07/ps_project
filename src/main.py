@@ -34,9 +34,11 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,save_weights_only=True,verbose=1,save_best_only=5)
 
 
-history = unet.fit(train_ds,validation_data= validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks=[tensorboard_callback, cp_callback])
-
 unet.load_weights(latest_checkpoint)
+# history = unet.fit(train_ds,validation_data= validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks=[tensorboard_callback, cp_callback])
+
 prediction = unet.predict(test_ds)
-data.convert_image(prediction)
-performance = unet.evaluate(test_ds)
+data.plot_spectrum_by_wv(prediction)
+data.plot_spectrum_by_pixel(prediction)
+# data.convert_image(prediction)
+# performance = unet.evaluate(test_ds)
