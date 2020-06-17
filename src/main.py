@@ -24,21 +24,23 @@ test_ds = test_dataset.load_data()
 
 
 # unet = model.unet(input_size=(config["patch_size"], config["patch_size"], 3), wavelengths= config["wavelengths"])
-resnet = model.resnet(32, 31)
+resnet = model.resnet(input_dim=config["patch_size"], wavelengths = config["wavelengths"])
 
-# logdir = config["base_dir"] + 'logs/fit/' + datetime.now().strftime("%Y%m%d-%H%M%S")
-# checkpoint_dir = config["base_dir"] + 'models/train/'
-# checkpoint_path = config["base_dir"] + 'models/train/cp-{epoch:04d}.ckpt'
-# latest_checkpoint = tf.train.latest_checkpoint(checkpoint_dir)
-# tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
-# cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,save_weights_only=True,verbose=1,save_best_only=5)
-
+logdir = config["base_dir"] + 'logs/fit/' + datetime.now().strftime("%Y%m%d-%H%M%S")
+checkpoint_dir = config["base_dir"] + 'models/train/'
+checkpoint_path = config["base_dir"] + 'models/train/cp-{epoch:04d}.ckpt'
+latest_checkpoint = tf.train.latest_checkpoint(checkpoint_dir)
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,save_weights_only=True,verbose=1,save_best_only=5)
 
 # unet.load_weights(latest_checkpoint)
+
 # history = unet.fit(train_ds,validation_data= validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks=[tensorboard_callback, cp_callback])
-history = resnet.fit(train_ds, validation_data = validation_ds, batch_size = 8, epochs = 10)
+
+history = resnet.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks = [tensorboard_callback, cp_callback])
+
 prediction = resnet.predict(test_ds)
 # data.plot_spectrum_by_wv(prediction)
 # data.plot_spectrum_by_pixel(prediction)
 data.convert_image(prediction)
-# performance = unet.evaluate(test_ds)
+performance = resnet.evaluate(test_ds)

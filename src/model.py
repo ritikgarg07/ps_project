@@ -2,6 +2,8 @@
 import tensorflow as tf 
 from tensorflow.keras import layers, optimizers
 
+
+# Metric MRAE
 class MRAE(tf.keras.metrics.Metric):
 
     def __init__(self, name = 'mrae_metric', **kwargs):
@@ -18,10 +20,8 @@ class MRAE(tf.keras.metrics.Metric):
     def reset_states(self):
         self.mrae.assign(0.)
 
-
-# class PartialConv(tf.keras.layers.Conv2D):
-def part_conv(input, input_dim, input_filters):
-    
+# normalises input by 1p1/1p0 as described in partial conv padding paper
+def part_conv(input, input_dim, input_filters):    
     p0 = tf.ones((1, input_dim, input_dim, 1))
     ratio = layers.Conv2D(filters = 1, kernel_size = 3, strides = 1, padding = 'same', use_bias = False, kernel_initializer=tf.constant_initializer(1.0), trainable = False)(p0)
     ratio2 = tf.broadcast_to(ratio, (1, input_dim, input_dim, input_filters))
@@ -29,14 +29,13 @@ def part_conv(input, input_dim, input_filters):
     part_conv = layers.Multiply()([input, ratio3])
     return part_conv
 
+# resnet block
 def resnet_block(input, input_dim, input_filters, output_filters):
     x = part_conv(input, input_dim, input_filters)
-    x = layers.Conv2D(output_filters, 3, 1, padding='same', activation='relu')(x)
-    x = part_conv(x, input_dim, output_filters)
     x = layers.Conv2D(output_filters, 3, 1, padding='same', activation=None)(x)
-
+    x = part_conv(x, input_dim, output_filters)
+    x = layers.Conv2D(output_filters, 3, 1, padding='same', activation='relu')(x)
     x = layers.Add()([x, input])
-
     return x
 
 def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
@@ -57,16 +56,13 @@ def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
     hyper = layers.Conv2D(filters = 31, kernel_size = 1, strides = 1, padding='same', activation='sigmoid')(hyper)
 
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
-    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse')
+    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [tf.keras.metrics.RootMeanSquaredError(), MRAE()])
 
-    # print(conv1.shape)
-
+    if(pretrained_weights):
+        model.load_weights(pretrained_weights)
+        
     # print(model.summary())
     return model
-
-
-
-# resnet = resnet(input_dim = 32, wavelengths = 31)
 
 
 def unet(input_size, wavelengths, pretrained_weights = None):
