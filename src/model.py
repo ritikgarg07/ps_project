@@ -50,9 +50,8 @@ def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
     resb4 = resnet_block(resb3, input_dim, 31, 31)
     resb5 = resnet_block(resb4, input_dim, 31, 31)
     resb6 = resnet_block(resb5, input_dim, 31, 31)
-    resb7 = resnet_block(resb6, input_dim, 31, 31)
-
-    hyper = part_conv(resb7, input_dim, 31)
+   
+    hyper = part_conv(resb6, input_dim, 31)
     hyper = layers.Conv2D(filters = 31, kernel_size = 1, strides = 1, padding='same', activation='sigmoid')(hyper)
 
     model = tf.keras.Model(inputs = rgb, outputs = hyper)

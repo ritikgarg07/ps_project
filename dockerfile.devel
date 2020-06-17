@@ -12,7 +12,7 @@ RUN groupadd --gid $USER_GID $USERNAME && \
    apt-get install git -y
      
 
-RUN python3 -m pip install pillow
+RUN python3 -m pip install pillow && python3 -m pip install matplotlib
 
 USER $USERNAME
 

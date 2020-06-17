@@ -33,14 +33,15 @@ latest_checkpoint = tf.train.latest_checkpoint(checkpoint_dir)
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,save_weights_only=True,verbose=1,save_best_only=5)
 
+# resnet.load_weights(latest_checkpoint)
 # unet.load_weights(latest_checkpoint)
-
 # history = unet.fit(train_ds,validation_data= validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks=[tensorboard_callback, cp_callback])
-
-history = resnet.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks = [tensorboard_callback, cp_callback])
+history = resnet.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks = [cp_callback])
 
 prediction = resnet.predict(test_ds)
-# data.plot_spectrum_by_wv(prediction)
-# data.plot_spectrum_by_pixel(prediction)
-data.convert_image(prediction)
+# prediction = unet.predict(test_ds)
+# data.plot_spectrum_by_wv(prediction, config["wavelengths"], config["patch_size"], config["image_size"])
+# data.plot_spectrum_by_pixel(prediction, config["patch_size"], config["image_size"])
+data.convert_image(prediction, config["wavelengths"], config["patch_size"], config["image_size"])
+# performance = unet.evaluate(test_ds)
 performance = resnet.evaluate(test_ds)
