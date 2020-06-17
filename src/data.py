@@ -53,15 +53,14 @@ class DataSet(object):
 
         return self.ds
 
-# TODO: CONFIGURE CONFIG FILE
-def convert_image(prediction):
+def convert_image(prediction, wavelengths, patch_size, image_size):
     
-    for wv in range(31):
-        b = np.empty((512, 512))
+    for wv in range(wavelengths):
+        b = np.empty((image_size, image_size))
         for index, arr in enumerate(prediction[:]):
-            i = index % 16
-            j = index // 16
-            b[i*32: (i+1)*32, j*32: (j+1)*32] = np.transpose(arr[:,:,wv])
+            i = index % (image_size//patch_size)
+            j = index // (image_size//patch_size)
+            b[i*patch_size: (i+1)*patch_size, j*patch_size: (j+1)*patch_size] = np.transpose(arr[:,:,wv])
 
         b = np.transpose(b)
         b = b * 65535
@@ -69,17 +68,17 @@ def convert_image(prediction):
         a = Image.fromarray(b).convert('I;16')
         a.save('/workspaces/ps_project/results/' + str(wv + 1).zfill(2) + '.png')
 
-def plot_spectrum_by_wv(prediction):
+def plot_spectrum_by_wv(prediction, wavelengths, patch_size, image_size):
     for wv in range(31):
-        patch = np.random.randint(0, 256)
-        a = tf.reshape(prediction[patch,:,:,wv], (32*32, 1))
+        patch = np.random.randint(0, pow(image_size//patch_size, 2))
+        a = tf.reshape(prediction[patch,:,:,wv], (pow(patch_size, 2), 1))
         plt.plot(a * 65535, label = 'prediction')
         
         with h5py.File('/workspaces/ps_project/data/test.h5', 'r') as hf:
             op_group = hf['/op']
             for index, op in enumerate(op_group):
                 if index == patch:
-                    b = np.reshape(np.array(op_group.get(op))[:, :, wv], (32*32, 1))
+                    b = np.reshape(np.array(op_group.get(op))[:, :, wv], (pow(patch_size, 2), 1))
                     plt.plot(b, label = 'truth')
                     plt.legend()
                     plt.title(f"Patch: {patch} Wavelength: {wv}")
@@ -88,11 +87,11 @@ def plot_spectrum_by_wv(prediction):
                 else:
                     pass
 
-def plot_spectrum_by_pixel(prediction):
+def plot_spectrum_by_pixel(prediction, patch_size, image_size):
     for i in range(20):
-        patch = np.random.randint(0, 256)
-        x = np.random.randint(0, 32)
-        y = np.random.randint(0,32)
+        patch = np.random.randint(0, pow(image_size//patch_size, 2))
+        x = np.random.randint(0, patch_size)
+        y = np.random.randint(0,patch_size)
 
         plt.plot(prediction[patch, x, y, :] * 65535, label = 'prediction')
         with h5py.File('/workspaces/ps_project/data/test.h5', 'r') as hf:

@@ -2,6 +2,8 @@
 import tensorflow as tf 
 from tensorflow.keras import layers, optimizers
 
+
+# Metric MRAE
 class MRAE(tf.keras.metrics.Metric):
 
     def __init__(self, name = 'mrae_metric', **kwargs):
@@ -17,6 +19,50 @@ class MRAE(tf.keras.metrics.Metric):
 
     def reset_states(self):
         self.mrae.assign(0.)
+
+# normalises input by 1p1/1p0 as described in partial conv padding paper
+def part_conv(input, input_dim, input_filters):    
+    p0 = tf.ones((1, input_dim, input_dim, 1))
+    ratio = layers.Conv2D(filters = 1, kernel_size = 3, strides = 1, padding = 'same', use_bias = False, kernel_initializer=tf.constant_initializer(1.0), trainable = False)(p0)
+    ratio2 = tf.broadcast_to(ratio, (1, input_dim, input_dim, input_filters))
+    ratio3 = tf.math.divide(9*tf.ones((1, input_dim, input_dim, input_filters)), ratio)
+    part_conv = layers.Multiply()([input, ratio3])
+    return part_conv
+
+# resnet block
+def resnet_block(input, input_dim, input_filters, output_filters):
+    x = part_conv(input, input_dim, input_filters)
+    x = layers.Conv2D(output_filters, 3, 1, padding='same', activation=None)(x)
+    x = part_conv(x, input_dim, output_filters)
+    x = layers.Conv2D(output_filters, 3, 1, padding='same', activation='relu')(x)
+    x = layers.Add()([x, input])
+    return x
+
+def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
+    
+    rgb = layers.Input((input_dim, input_dim, 3))
+    prgb = part_conv(rgb, input_dim, input_filters = 3)
+    conv1 = layers.Conv2D(filters = 31, kernel_size = 3, strides= 1, padding='same', activation='relu')(prgb)
+
+    resb1 = resnet_block(conv1, input_dim, 31, 31)
+    resb2 = resnet_block(resb1, input_dim, 31, 31)
+    resb3 = resnet_block(resb2, input_dim, 31, 31)
+    resb4 = resnet_block(resb3, input_dim, 31, 31)
+    resb5 = resnet_block(resb4, input_dim, 31, 31)
+    resb6 = resnet_block(resb5, input_dim, 31, 31)
+   
+    hyper = part_conv(resb6, input_dim, 31)
+    hyper = layers.Conv2D(filters = 31, kernel_size = 1, strides = 1, padding='same', activation='sigmoid')(hyper)
+
+    model = tf.keras.Model(inputs = rgb, outputs = hyper)
+    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [tf.keras.metrics.RootMeanSquaredError(), MRAE()])
+
+    if(pretrained_weights):
+        model.load_weights(pretrained_weights)
+        
+    # print(model.summary())
+    return model
+
 
 def unet(input_size, wavelengths, pretrained_weights = None):
 
