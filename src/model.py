@@ -60,44 +60,49 @@ def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
     if(pretrained_weights):
         model.load_weights(pretrained_weights)
         
-    # print(model.summary())
+    print(model.summary())
     return model
 
 
 def unet(input_size, wavelengths, pretrained_weights = None):
 
     rgb = layers.Input(input_size)
-   
+    input_dim = 32
+    prgb = part_conv(rgb, input_dim, input_filters = 3)
+    
     # ENCODER layers 
-    conv1 = layers.Conv2D(filters=32, kernel_size=3, strides=1, activation='relu', padding='valid')(rgb)  
-    conv2 = layers.Conv2D(filters=64, kernel_size=3, strides=1, activation='relu', padding='valid')(conv1)
-    conv3 = layers.Conv2D(filters=128, kernel_size=3, strides=1, activation='relu', padding='valid')(conv2)
-    conv4 = layers.Conv2D(filters=128, kernel_size=3, strides=1, activation='relu', padding='valid')(conv3)
+    conv1 = layers.Conv2D(filters=32, kernel_size=3, strides=1, activation='relu', padding='same')(prgb)  
+    conv1 = part_conv(conv1, input_dim, input_filters=32)
+    conv2 = layers.Conv2D(filters=64, kernel_size=3, strides=1, activation='relu', padding='same')(conv1)
+    conv2 = part_conv(conv2, input_dim, input_filters=64)
+    conv3 = layers.Conv2D(filters=128, kernel_size=3, strides=1, activation='relu', padding='same')(conv2)
+    conv3 = part_conv(conv3, input_dim, input_filters=128)
+    conv4 = layers.Conv2D(filters=128, kernel_size=3, strides=1, activation='relu', padding='same')(conv3)
     
     # Decoder layers
-    upconv1 = layers.Conv2DTranspose(filters=128, kernel_size=3, strides=1, activation='relu', padding='valid')(conv4)
+    upconv1 = layers.Conv2DTranspose(filters=128, kernel_size=3, strides=1, activation='relu', padding='same')(conv4)
     merge1 = layers.concatenate([upconv1, conv3], axis = 3)
     
-    upconv2 = layers.Conv2DTranspose(filters=64, kernel_size=3, strides=1, activation='relu', padding='valid')(merge1)
+    upconv2 = layers.Conv2DTranspose(filters=64, kernel_size=3, strides=1, activation='relu', padding='same')(merge1)
     merge2 = layers.concatenate((upconv2, conv2), axis = 3)
     
-    upconv3 = layers.Conv2DTranspose(filters=32, kernel_size=3, strides=1, activation='relu', padding='valid')(merge2)
+    upconv3 = layers.Conv2DTranspose(filters=32, kernel_size=3, strides=1, activation='relu', padding='same')(merge2)
     merge3 = layers.concatenate((upconv3, conv1), axis = 3)
     
     # reconstruction of rgb
-    upconv4 = layers.Conv2DTranspose(filters=3, kernel_size=3, strides=1, activation='relu', padding='valid')(merge3)
+    upconv4 = layers.Conv2DTranspose(filters=3, kernel_size=3, strides=1, activation='relu', padding='same')(merge3)
     
     # final hyperspectral layer
     # 1x1 convolution for now
-    hyper = layers.Conv2D(filters=wavelengths, kernel_size=1, strides=1, activation='sigmoid')(upconv4)
+    upconv4 = part_conv(upconv4, input_dim, input_filters=3)
+    hyper = layers.Conv2D(filters=wavelengths, kernel_size=1, strides=1, activation='sigmoid', padding = 'same')(upconv4)
 
 
-    # TODO: Change metric to mean relative absolute error as described in VIDAR paper
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
     model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [tf.keras.metrics.RootMeanSquaredError(), MRAE()])
     if(pretrained_weights):
         model.load_weights(pretrained_weights)
 
-    # print(model.summary())
+    print(model.summary())
     return model
 

@@ -89,6 +89,7 @@ class DataPrepare(object):
         self.op = self.file.create_group('op')
 
         for id in self.image_range[start:]:
+            print(id)
             self.current_path = self.src_path + str(id) + '/'
             self.__crop_store(id)
 
