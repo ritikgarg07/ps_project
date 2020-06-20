@@ -20,6 +20,10 @@ class MRAE(tf.keras.metrics.Metric):
     def reset_states(self):
         self.mrae.assign(0.)
 
+def mrae(y_true, y_pred):
+    y_t = tf.math.maximum(y_true, 0.001*tf.ones_like(y_true))
+    return tf.reduce_mean(tf.divide(tf.abs(y_true - y_pred), y_t), axis = -1)
+
 # normalises input by 1p1/1p0 as described in partial conv padding paper
 def part_conv(input, input_dim, input_filters):    
     p0 = tf.ones((1, input_dim, input_dim, 1))
@@ -55,12 +59,12 @@ def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
     hyper = layers.Conv2D(filters = 31, kernel_size = 1, strides = 1, padding='same', activation='sigmoid')(hyper)
 
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
-    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [tf.keras.metrics.RootMeanSquaredError(), MRAE()])
+    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [mrae])
 
     if(pretrained_weights):
         model.load_weights(pretrained_weights)
         
-    print(model.summary())
+    # print(model.summary())
     return model
 
 
@@ -99,10 +103,10 @@ def unet(input_size, wavelengths, pretrained_weights = None):
 
 
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
-    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [tf.keras.metrics.RootMeanSquaredError(), MRAE()])
+    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [mrae])
     if(pretrained_weights):
         model.load_weights(pretrained_weights)
 
-    print(model.summary())
+    # print(model.summary())
     return model
 
