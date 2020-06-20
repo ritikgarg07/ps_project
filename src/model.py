@@ -4,25 +4,12 @@ from tensorflow.keras import layers, optimizers
 
 
 # Metric MRAE
-class MRAE(tf.keras.metrics.Metric):
-
-    def __init__(self, name = 'mrae_metric', **kwargs):
-        super(MRAE, self).__init__(name = name, **kwargs)
-        self.mrae = self.add_weight(name='mrae', initializer = 'zeros')
-    
-    def update_state(self, y_true, y_pred):
-        zero_protected_true = tf.maximum(y_true, 1e-5*tf.ones_like(y_true))
-        self.mrae.assign_add(tf.reduce_mean(tf.divide(tf.abs(y_pred - y_true), zero_protected_true)))
-
-    def result(self):
-        return self.mrae
-
-    def reset_states(self):
-        self.mrae.assign(0.)
-
 def mrae(y_true, y_pred):
     y_t = tf.math.maximum(y_true, 0.001*tf.ones_like(y_true))
     return tf.reduce_mean(tf.divide(tf.abs(y_true - y_pred), y_t), axis = -1)
+
+def mse(y_true, y_pred):
+    return tf.reduce_mean(tf.square(y_true - y_pred), axis = -1)
 
 # normalises input by 1p1/1p0 as described in partial conv padding paper
 def part_conv(input, input_dim, input_filters):    
@@ -50,6 +37,7 @@ def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
 
     resb1 = resnet_block(conv1, input_dim, 31, 31)
     resb2 = resnet_block(resb1, input_dim, 31, 31)
+    # resb3 = layers.Conv2D(filters = 64, kernel_size=3, strides=1, padding='same', activation='relu')(resb2)
     resb3 = resnet_block(resb2, input_dim, 31, 31)
     resb4 = resnet_block(resb3, input_dim, 31, 31)
     resb5 = resnet_block(resb4, input_dim, 31, 31)
@@ -59,7 +47,33 @@ def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
     hyper = layers.Conv2D(filters = 31, kernel_size = 1, strides = 1, padding='same', activation='sigmoid')(hyper)
 
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
-    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [mrae])
+    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [mrae, mse])
+
+    if(pretrained_weights):
+        model.load_weights(pretrained_weights)
+        
+    # print(model.summary())
+    return model
+
+def resnet2(input_dim, wavelengths = 31, pretrained_weights = None):
+    
+    rgb = layers.Input((input_dim, input_dim, 3))
+    prgb = part_conv(rgb, input_dim, input_filters = 3)
+    conv1 = layers.Conv2D(filters = 32, kernel_size = 3, strides= 1, padding='same', activation='relu')(prgb)
+
+    resb1 = resnet_block(conv1, input_dim, 32, 32)
+    resb2 = resnet_block(resb1, input_dim, 32, 32)
+    resb2 = part_conv(resb2, input_dim, input_filters = 32)
+    resb3 = layers.Conv2D(filters = 64, kernel_size=3, strides=1, padding='same', activation='relu')(resb2)
+    resb4 = resnet_block(resb3, input_dim, 64, 64)
+    resb5 = resnet_block(resb4, input_dim, 64, 64)
+    resb6 = resnet_block(resb5, input_dim, 64, 64)
+   
+    hyper = part_conv(resb6, input_dim, 64)
+    hyper = layers.Conv2D(filters = 31, kernel_size = 1, strides = 1, padding='same', activation='sigmoid')(hyper)
+
+    model = tf.keras.Model(inputs = rgb, outputs = hyper)
+    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [mrae, mse])
 
     if(pretrained_weights):
         model.load_weights(pretrained_weights)
@@ -103,7 +117,7 @@ def unet(input_size, wavelengths, pretrained_weights = None):
 
 
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
-    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [mrae])
+    model.compile(optimizer = optimizers.Adam(learning_rate=0.0001), loss = 'mse', metrics = [mrae, mse])
     if(pretrained_weights):
         model.load_weights(pretrained_weights)
 
