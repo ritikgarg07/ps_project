@@ -25,7 +25,7 @@ test_ds = test_dataset.load_data()
 
 unet = model.unet(input_size=(config["patch_size"], config["patch_size"], 3), wavelengths= config["wavelengths"])
 resnet = model.resnet(input_dim=config["patch_size"], wavelengths = config["wavelengths"])
-resnet2 = model.resnet2(input_dim=config["patch_size"], wavelengths = config["wavelengths"])
+# resnet2 = model.resnet2(input_dim=config["patch_size"], wavelengths = config["wavelengths"])
 
 
 # logdir = config["base_dir"] + 'logs/fit/' + datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -46,23 +46,26 @@ cp_callback_u = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path_u,sa
 cp_callback_r = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path_r,save_weights_only=True,verbose=1,save_best_only=5)
 cp_callback_r2 = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path_r2,save_weights_only=True,verbose=1,save_best_only=5)
 
-resnet.load_weights(latest_checkpoint_r)
+# resnet.load_weights(latest_checkpoint_r)
 # unet.load_weights(latest_checkpoint_u)
-resnet2.load_weights(latest_checkpoint_r2)
+# resnet2.load_weights(latest_checkpoint_r2)
 
-# history = unet.fit(train_ds,validation_data= validation_ds, batch_size = config["batch_size"], epochs = config["epochs"])
-# history = resnet.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"])
-# history = resnet2.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks = [cp_callback_r2])
+history = unet.fit(train_ds,validation_data= validation_ds, batch_size = config["batch_size"], epochs = config["epochs"])
+prediction_u = unet.predict(test_ds)
+# data.convert_image(prediction_u, config["wavelengths"], config["patch_size"], config["image_size"])
+# performance = unet.evaluate(test_ds)
 
-# prediction_u = unet.predict(test_ds)
-# prediction_r = resnet.predict(test_ds)
+
+history = resnet.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"])
+prediction_r = resnet.predict(test_ds)
+data.convert_image(prediction_r, config["wavelengths"], config["patch_size"], config["image_size"])
+performance = resnet.evaluate(test_ds)
+# history = resnet2.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"])
+
 # prediction_r2 = resnet2.predict(test_ds)
 
 # data.plot_spectrum_by_wv(prediction_r, config["wavelengths"], config["patch_size"], config["image_size"], patch = 128)
 # data.plot_spectrum_by_pixel(prediction_r, config["patch_size"], config["image_size"], patch = 128, x_s = 0, y_s = 0)
-# data.convert_image(prediction_r, config["wavelengths"], config["patch_size"], config["image_size"])
-# data.save_results(prediction_u, prediction_r)
+data.save_results(prediction_u, prediction_r)
 
-# performance = unet.evaluate(test_ds)
-performance = resnet.evaluate(test_ds)
-performance = resnet2.evaluate(test_ds)
+# performance = resnet2.evaluate(test_ds)
