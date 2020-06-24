@@ -22,10 +22,9 @@ def part_conv(input, input_dim, input_filters):
 
 # resnet block
 def resnet_block(input, input_dim, input_filters, output_filters):
-    x = input
-    # x = part_conv(input, input_dim, input_filters)
+    x = part_conv(input, input_dim, input_filters)
     x = layers.Conv2D(output_filters, 3, 1, padding='same', activation=None)(x)
-    # x = part_conv(x, input_dim, output_filters)
+    x = part_conv(x, input_dim, output_filters)
     x = layers.Conv2D(output_filters, 3, 1, padding='same', activation='relu')(x)
     x = layers.Add()([x, input])
     return x
@@ -33,8 +32,7 @@ def resnet_block(input, input_dim, input_filters, output_filters):
 def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
     
     rgb = layers.Input((input_dim, input_dim, 3))
-    # prgb = part_conv(rgb, input_dim, input_filters = 3)
-    prgb = rgb
+    prgb = part_conv(rgb, input_dim, input_filters = 3)
     conv1 = layers.Conv2D(filters = 32, kernel_size = 3, strides= 1, padding='same', activation='relu')(prgb)
 
     resb1 = resnet_block(conv1, input_dim, 32, 32)
@@ -44,8 +42,7 @@ def resnet(input_dim, wavelengths = 31, pretrained_weights = None):
     resb4 = resnet_block(resb3, input_dim, 64, 64)
     resb5 = resnet_block(resb4, input_dim, 64, 64)
     resb6 = resnet_block(resb5, input_dim, 64, 64)
-    hyper = resb6
-    # hyper = part_conv(resb6, input_dim, 64)
+    hyper = part_conv(resb6, input_dim, 64)
     hyper = layers.Conv2D(filters = 31, kernel_size = 1, strides = 1, padding='same', activation='sigmoid')(hyper)
 
     model = tf.keras.Model(inputs = rgb, outputs = hyper)
@@ -83,7 +80,7 @@ def resnet2(input_dim, wavelengths = 31, pretrained_weights = None):
     if(pretrained_weights):
         model.load_weights(pretrained_weights)
         
-    print(model.summary())
+    # print(model.summary())
     return model
 
 
@@ -91,16 +88,15 @@ def unet(input_size, wavelengths, pretrained_weights = None):
 
     rgb = layers.Input(input_size)
     input_dim = 32
-    # prgb = part_conv(rgb, input_dim, input_filters = 3)
-    prgb = rgb
-
+    prgb = part_conv(rgb, input_dim, input_filters = 3)
+    
     # ENCODER layers 
     conv1 = layers.Conv2D(filters=32, kernel_size=3, strides=1, activation='relu', padding='same')(prgb)  
-    # conv1 = part_conv(conv1, input_dim, input_filters=32)
+    conv1 = part_conv(conv1, input_dim, input_filters=32)
     conv2 = layers.Conv2D(filters=64, kernel_size=3, strides=1, activation='relu', padding='same')(conv1)
-    # conv2 = part_conv(conv2, input_dim, input_filters=64)
+    conv2 = part_conv(conv2, input_dim, input_filters=64)
     conv3 = layers.Conv2D(filters=128, kernel_size=3, strides=1, activation='relu', padding='same')(conv2)
-    # conv3 = part_conv(conv3, input_dim, input_filters=128)
+    conv3 = part_conv(conv3, input_dim, input_filters=128)
     conv4 = layers.Conv2D(filters=128, kernel_size=3, strides=1, activation='relu', padding='same')(conv3)
     
     # Decoder layers

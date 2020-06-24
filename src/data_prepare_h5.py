@@ -33,12 +33,27 @@ class DataPrepare(object):
         # input image
         ip_image = np.array(Image.open(ip_file))
         img_size = ip_image.shape[0]
-        pieces = img_size // self.size
+        border = 16
+        pieces = img_size // (self.size - border)
+        pieces -= 1
+
+        start_i = 0
+        end_i = 32
+        
         for i in range(0, pieces):
+            start_j = 0
+            end_j = 32
             for j in range(0, pieces):
+                
                 name = str(id).zfill(2) + '_' + str(i).zfill(2) + '_' + str(j).zfill(2)
-                a = ip_image[i * self.size:  (i + 1) * self.size, j * self.size: (j + 1) * self.size]
+                a = ip_image[start_j:  end_j, start_i: end_i]
                 self.ip.create_dataset(name, data = a)
+                start_j += 16
+                end_j = start_j + 32
+
+
+            start_i += 16
+            end_i = start_i + 32
 
         b = np.zeros(shape = (img_size, img_size, config["wavelengths"]), dtype = np.uint16)
         for wv, op_file in enumerate(op_files):
@@ -53,17 +68,30 @@ class DataPrepare(object):
                 op_image = np.array(Image.open(op_file), dtype = np.uint16)
 
             b[:,:,wv] = np.asarray(op_image)
-       
+        
+        start_i = 0
+        end_i = 32
+        
         for i in range(0, pieces):
+            start_j = 0
+            end_j = 32
             for j in range(0, pieces):
+                
                 # template: b[j * self.size: (j + 1) * self.size, i * self.size: (i + 1) * self.size, :]
                 name = str(id).zfill(2) + '_' + str(i).zfill(2) + '_' + str(j).zfill(2)
-                a = b[i * self.size:  (i + 1) * self.size, j * self.size: (j + 1) * self.size, :]
+                a = b[start_j:  end_j, start_i: end_i, :]
                 self.op.create_dataset(name, data = a)
+                print(start_i, end_i, start_j, end_j)
+                start_j += 16
+                end_j = start_j + 32
+ 
+            start_i += 16
+            end_i = start_i + 32
+                
 
     # Generates training set from images_range 
     def __create_train(self, start, end):
-        self.file = h5py.File(self.dest_path + 'train.h5', 'w')
+        self.file = h5py.File(self.dest_path + 'train2.h5', 'w')
         self.ip = self.file.create_group('ip')
         self.op = self.file.create_group('op')
 
@@ -73,7 +101,7 @@ class DataPrepare(object):
 
     # Generate validation set from images_range
     def __create_validation(self, start, end):
-        self.file = h5py.File(self.dest_path + 'validation.h5', 'w')
+        self.file = h5py.File(self.dest_path + 'validation2.h5', 'w')
         self.ip = self.file.create_group('ip')
         self.op = self.file.create_group('op')
 
@@ -84,7 +112,7 @@ class DataPrepare(object):
     # Generate test set from images_range
     # ! [start: ]; till end of images_range
     def __create_test(self, start):
-        self.file = h5py.File(self.dest_path + 'test.h5', 'w')
+        self.file = h5py.File(self.dest_path + 'test2.h5', 'w')
         self.ip = self.file.create_group('ip')
         self.op = self.file.create_group('op')
 
