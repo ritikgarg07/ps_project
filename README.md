@@ -19,8 +19,9 @@
         src/main.py:            while loading config file
         src/data_prepare_h5.py: while loading config file
         config.yaml:            base_dir
-    
-        
+
+### NOTE:    
+    Specify the link to the dataset in download.sh        
 
 
 

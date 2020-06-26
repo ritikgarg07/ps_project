@@ -7,6 +7,7 @@ import tensorflow as tf
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
+# Generator for dataset
 class Generator(object):
     def __init__(self, file):
         self.file = file
@@ -16,7 +17,7 @@ class Generator(object):
             ip_group = hf['/ip']
             op_group = hf['/op']
 
-            # ! Normalises ip (RGB) images by 255 {2^8 - 1} and op (Hyper) by 65536 {2^16 - 1}
+            # ! Normalises ip (RGB) images by 255 {2^8 - 1} and op (Hyper) by 65535 {2^16 - 1}
             # ! Returns float32, should match with dataset.load_data()
             for ip, op in zip(ip_group, op_group):
                 ip_np = np.array(ip_group.get(ip)).astype(np.float32)
@@ -50,20 +51,30 @@ class DataSet(object):
 
         return self.ds
 
+# Takes in a prediction, aka training_examples x 32 x 32 x 31
+# and generates 31 512 x 512 images, one for each wavelength
+# ! NOTE: configured to handle only 1 image dataset
 def convert_image(prediction, wavelengths, patch_size, image_size):
     
     for wv in range(wavelengths):
+    
+        # initialise empty placeholder array
         b = np.empty((image_size, image_size))
+
         for index, arr in enumerate(prediction[:]):
+            # locate patch-size 
             i = index % 31
             j = index // 31
 
+            # start_ and end_ are the locations of the starting and ending pixel that the patch refers to in the 512x512 image
+            # refer to data_prepare.h5 for specifics of dataset preparation
             start_i = i*16 + 8 - (i==0)*8
             end_i = start_i + 16 + (i==0)*8 + (i==30)*8
            
             start_j = j*16 + 8 - (j==0)*8
             end_j = start_j + 16 + (j==0)*8 + (j==30)*8
 
+            # take_s and and take_j are the starting and ending locations of the 512x512 image that the patch will provide information about
             take_si = 8 - (i==0)*8
             take_ei = take_si + 16 + (i==0)*8 + (i==30)*8 
 
@@ -72,9 +83,7 @@ def convert_image(prediction, wavelengths, patch_size, image_size):
 
             b[start_i: end_i, start_j: end_j] = arr[take_si:take_ei,take_sj:take_ej,wv]
 
-            # b[i*patch_size: (i+1)*patch_size, j*patch_size: (j+1)*patch_size] = np.transpose(arr[:,:,wv])
-
-        
+        # rescale back for 16-bit png
         b = b * 65535
         b = np.array(b, dtype = np.uint16)
         a = Image.fromarray(b).convert('I;16')
@@ -151,7 +160,7 @@ def plot_spectrum_by_pixel(prediction, patch_size, image_size, patch, x_s, y_s):
                 else:
                     pass
 
-
+# creates the mrae plots
 def save_results(unet, resnet, patch_size = 32):
     hf = h5py.File('/workspaces/ps_project/data/test2.h5', 'r')
     ip_group = hf['/ip']
