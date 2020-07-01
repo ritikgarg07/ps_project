@@ -13,6 +13,13 @@ data/*
 !data/d65.csv
 !data/.gitkeep
 
+# Ignore data.zip
+*.zip
+
+# Don't upload sample folder
+sample/*
+!sample/.gitkeep
+
 # PyCache
 src/__pycache__
 
