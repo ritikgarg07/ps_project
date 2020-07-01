@@ -7,7 +7,7 @@ import data
 import model
 from benchmark import timeit
 import sample_prepare
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # Loading config gile
 with open('/workspaces/ps_project/config.yaml') as file:
