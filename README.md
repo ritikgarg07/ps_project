@@ -19,13 +19,13 @@
 ### Using the model for predictions
 
 Store all the .bmp input rgb images in ps_project/sample/ and then run  
-`python src/predict.h5`
+`python src/predict.py`
 
 #### NOTE:   
 For download.sh 2 flags are available:     
-    if -d is provided it will download dataset    
-    if -u is provided it will unzip dataset    
-    You can manually download and unzip dataset and place it in ps_project/data/raw/ and run download.sh without any flags  
+    if -d is provided it will download dataset      
+    if -u is provided it will unzip dataset      
+    You can manually download and unzip dataset and place it in ps_project/data/raw/ and run download.sh without any flags    
     Otherwise, you can manually download the dataset and place the zip in ps_project/ and use only the -u flag
 
 ### NOTE:    
