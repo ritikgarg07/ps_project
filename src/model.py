@@ -123,6 +123,5 @@ def unet(input_size, wavelengths, pretrained_weights = None):
     if(pretrained_weights):
         model.load_weights(pretrained_weights)
 
-    print(model.summary())
     return model
 
