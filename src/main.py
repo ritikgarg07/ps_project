@@ -54,6 +54,8 @@ print("Created resnet model")
 resnet2 = model.resnet2(input_dim=config["patch_size"], wavelengths = config["wavelengths"])
 print("Created deeper resnet model\n")
 
+
+# print("Using unet model")
 # unet.load_weights(latest_checkpoint_u)
 # print("Loaded pre-trained unet model")
 # history = unet.fit(train_ds,validation_data= validation_ds, batch_size = config["batch_size"], epochs = config["epochs"])
@@ -61,13 +63,14 @@ print("Created deeper resnet model\n")
 # performance = unet.evaluate(test_ds)
 
 
-resnet.load_weights(latest_checkpoint_r)
-print("Loaded pre-trained resnet model")
-# history = resnet.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks = [cp_callback_r])
+print("Using resnet model")
+# resnet.load_weights(latest_checkpoint_r)
+# print("Loaded pre-trained model")
+history = resnet.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks = [cp_callback_r])
 prediction_r = resnet.predict(test_ds)
 # performance = resnet.evaluate(test_ds)
 
-
+# print("Using deeper resnet model")
 # resnet2.load_weights(latest_checkpoint_r2)
 # print("Loaded pre-trained deeper resnet model")
 # history = resnet2.fit(train_ds, validation_data = validation_ds, batch_size = config["batch_size"], epochs = config["epochs"], callbacks = [cp_callback_r2])
