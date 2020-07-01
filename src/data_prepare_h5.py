@@ -6,10 +6,9 @@ import os
 import glob
 import yaml
 
-# ! Specifiy absolute path here
+# Load the config file
 with open('/workspaces/ps_project/config.yaml') as file:
     config = yaml.safe_load(file)
-
 
 
 # Class encapsulating the data preparation functionality
@@ -81,7 +80,6 @@ class DataPrepare(object):
                 name = str(id).zfill(2) + '_' + str(i).zfill(2) + '_' + str(j).zfill(2)
                 a = b[start_j:  end_j, start_i: end_i, :]
                 self.op.create_dataset(name, data = a)
-                print(start_i, end_i, start_j, end_j)
                 start_j += 16
                 end_j = start_j + 32
  
@@ -91,7 +89,8 @@ class DataPrepare(object):
 
     # Generates training set from images_range 
     def __create_train(self, start, end):
-        self.file = h5py.File(self.dest_path + 'train2.h5', 'w')
+        print("Creating training dataset...")
+        self.file = h5py.File(self.dest_path + 'train.h5', 'w')
         self.ip = self.file.create_group('ip')
         self.op = self.file.create_group('op')
 
@@ -101,7 +100,8 @@ class DataPrepare(object):
 
     # Generate validation set from images_range
     def __create_validation(self, start, end):
-        self.file = h5py.File(self.dest_path + 'validation2.h5', 'w')
+        print("Creating validation dataset...")
+        self.file = h5py.File(self.dest_path + 'validation.h5', 'w')
         self.ip = self.file.create_group('ip')
         self.op = self.file.create_group('op')
 
@@ -112,12 +112,13 @@ class DataPrepare(object):
     # Generate test set from images_range
     # ! [start: ]; till end of images_range
     def __create_test(self, start):
-        self.file = h5py.File(self.dest_path + 'test2.h5', 'w')
+        print("Creating test dataset...")
+        self.file = h5py.File(self.dest_path + 'test.h5', 'w')
         self.ip = self.file.create_group('ip')
         self.op = self.file.create_group('op')
 
         for id in self.image_range[start:]:
-            print(id)
+            print(f"TEST IMAGE ID: {id}")
             self.current_path = self.src_path + str(id) + '/'
             self.__crop_store(id)
 
