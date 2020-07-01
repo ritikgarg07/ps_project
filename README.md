@@ -6,7 +6,7 @@
 `git clone https://github.com/ritikgarg07/ps_project.git`  
 `cd ps_project`  
 `sh scripts/setup.sh`              (This will create a docker image with the required packages)      
-`sh scripts/download.sh -d -u`     (This will download, unzip and process the dataset)
+`sh scripts/download.sh -d -u`     (This will download, unzip and process the dataset)  
 `cd ..`
 `sh ps_project/scripts/run.sh`     (This will create a docker container and mount the files appropriately)
 `cd /workspaces/ps_project`        (Make sure you're inside the container)
