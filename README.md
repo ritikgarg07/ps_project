@@ -13,7 +13,7 @@
 
 ### Training the model(s)
 
-`python src/data_prepare.h5`       (This will prepare the dataset for training)  
+`python src/data_prepare.py`       (This will prepare the dataset for training)  
 `python src/main.py`               (This will train and execute models)  
   
 ### Using the model for predictions
