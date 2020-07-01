@@ -327,7 +327,7 @@ def save_results(model1, patch_size = 32, mrae = False):
     
     for wv in range(31):
         
-        print(f"Wavelength: {wv}....")
+        print(f"Wavelength: {wv}...")
         fig, axs = plt.subplots(2, 2)
         axs[0, 1].imshow(truth[:,:,wv], cmap = 'gist_gray')
         axs[0, 1].set_title('Truth Value')
