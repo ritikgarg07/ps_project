@@ -10,7 +10,6 @@ sudo systemctl restart docker
 
 # Build image
 IMAGE=ps_image
-CONTAINER=ps_container
 
 docker build -t ${IMAGE} -f dockerfile.devel .
 
