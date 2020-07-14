@@ -7,6 +7,7 @@ import glob
 import yaml
 
 # Load the config file
+# ! Specify base dir
 with open('/workspaces/ps_project/config.yaml') as file:
     config = yaml.safe_load(file)
 

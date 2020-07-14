@@ -10,6 +10,7 @@ import sample_prepare
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # Loading config gile
+# ! Specify base_dir
 with open('/workspaces/ps_project/config.yaml') as file:
     config = yaml.safe_load(file)
 

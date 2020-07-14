@@ -4,8 +4,15 @@ import numpy as np
 import os
 from PIL import Image
 import tensorflow as tf
+import yaml
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
+
+# Load the config file
+# ! Specify base dir
+with open('/workspaces/ps_project/config.yaml') as file:
+    config = yaml.safe_load(file)
+
 
 # Generator for dataset
 class Generator(object):
@@ -94,7 +101,7 @@ def convert_image(prediction, wavelengths, patch_size, image_size):
             b = b * 65535
             b = np.array(b, dtype = np.uint16)
             a = Image.fromarray(b).convert('I;16')
-            a.save('/workspaces/ps_project/results/' + str(image_no + 1) + '_' + str(wv + 1).zfill(2) + '.png')
+            a.save(config["base_dir"] + 'results/' + str(image_no + 1) + '_' + str(wv + 1).zfill(2) + '.png')
 
 # !Not configured for new patch size methods, redundant
 def plot_spectrum_by_wv(prediction, wavelengths, patch_size, image_size, patch):
@@ -104,7 +111,7 @@ def plot_spectrum_by_wv(prediction, wavelengths, patch_size, image_size, patch):
         a = a[:512]
         plt.plot(a, label = 'prediction', color = 'orange')
         
-        with h5py.File('/workspaces/ps_project/data/test.h5', 'r') as hf:
+        with h5py.File(config["base_dir"] + 'data/test.h5', 'r') as hf:
             op_group = hf['/op']
             ip_group = hf['/ip']
 
@@ -133,7 +140,7 @@ def plot_spectrum_by_wv(prediction, wavelengths, patch_size, image_size, patch):
                     plt.plot(b, label = 'truth', color = 'black')
                     plt.legend()
                     plt.title(f"Patch: {patch} Wavelength: {wv}")
-                    plt.savefig(f"/workspaces/ps_project/plots/by_wv/test_{wv}_{patch}.png")
+                    plt.savefig(f"{config['base_dir']}plots/by_wv/test_{wv}_{patch}.png")
                     plt.clf()
                 else:
                     pass
@@ -146,7 +153,7 @@ def plot_spectrum_by_pixel(prediction, patch_size, image_size, patch, x_s, y_s):
         y = y_s + i
 
         plt.plot(prediction[patch, x, y, :], label = 'prediction', color = 'orange')
-        with h5py.File('/workspaces/ps_project/data/test.h5', 'r') as hf:
+        with h5py.File(config["base_dir"] + 'data/test.h5', 'r') as hf:
             op_group = hf['/op']
             ip_group = hf['/ip']
             for index, (op, ip) in enumerate(zip(op_group, ip_group)):
@@ -164,14 +171,14 @@ def plot_spectrum_by_pixel(prediction, patch_size, image_size, patch, x_s, y_s):
                     plt.xlabel('wavelength')
                     plt.legend()
                     plt.title(f"Patch: {patch} X: {x} Y: {y}")
-                    plt.savefig(f"/workspaces/ps_project/plots/by_pixel/test_{i}_{x}_{y}.png")
+                    plt.savefig(f"{config['base_dir']}plots/by_pixel/test_{i}_{x}_{y}.png")
                     plt.clf()
                 else:
                     pass
 
 # creates the error plots
 def save_results(model1, model2, patch_size = 32, mrae = False):
-    hf = h5py.File('/workspaces/ps_project/data/test.h5', 'r')
+    hf = h5py.File(config["base_dir"] + 'data/test.h5', 'r')
     ip_group = hf['/ip']
     op_group = hf['/op']
     
@@ -265,13 +272,13 @@ def save_results(model1, model2, patch_size = 32, mrae = False):
         
         fig.set_size_inches((11, 8.5), forward=False)
         fig.suptitle(f"Wavelength: {wv*10 + 400} nm, Image ID: 10")
-        plt.savefig(f"/workspaces/ps_project/plots/test_{wv}.png", dpi=100)
+        plt.savefig(f"{config['base_dir']}plots/test_{wv}.png", dpi=100)
         plt.close(fig)
     
 
 # creates the error plots
 def save_results(model1, patch_size = 32, mrae = False):
-    hf = h5py.File('/workspaces/ps_project/data/test.h5', 'r')
+    hf = h5py.File(config["base_dir"] + 'data/test.h5', 'r')
     ip_group = hf['/ip']
     op_group = hf['/op']
     
@@ -348,6 +355,6 @@ def save_results(model1, patch_size = 32, mrae = False):
         
         fig.set_size_inches((11, 8.5), forward=False)
         fig.suptitle(f"Wavelength: {wv*10 + 400} nm")
-        plt.savefig(f"/workspaces/ps_project/plots/test_{wv}.png", dpi=100)
+        plt.savefig(f"{config['base_dir']}plots/test_{wv}.png", dpi=100)
         plt.close(fig)
     

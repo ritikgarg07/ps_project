@@ -9,6 +9,7 @@ from benchmark import timeit
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # Load config file
+# ! Specify base_dir
 with open('/workspaces/ps_project/config.yaml') as file:
     config = yaml.safe_load(file)
 
